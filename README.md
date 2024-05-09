@@ -30,22 +30,7 @@ The algorithm works in the following way:
 
 ## How to use
 
-Visit the [live demo]() to see the algorithm in action. You can also clone the repository and run the project locally. To run the project locally, follow the steps below:
-
-1. Clone the repository
-
-```bash
-git clone
-```
-
-2. Navigate to the project directory
-
-```bash
-cd wave-function-collapse
-```
-
-3. Run WFC.exe (NOT IMPLEMENTED YET)
-
+Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/) to see the algorithm in action.
 
 ## Acknowledgements
 
