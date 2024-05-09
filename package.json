@@ -1,0 +1,23 @@
+{
+  "name": "WFC-Demonstration",
+  "description": "Generates terrain based on patterns from an input image.",
+  "author": "Nathan Hinthorne",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.example.yourapp",
+    "productName": "WFC",
+    "win": {
+      "target": "portable",
+      "icon": "assets/icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.1",
+    "electron-builder": "^22.11.7"
+  }
+}
