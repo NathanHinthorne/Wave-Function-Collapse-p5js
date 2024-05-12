@@ -20,10 +20,13 @@ The algorithm works in the following way:
 
     a. The propagation of tiles is done by choosing the cell with the lowest entropy (the cell with the fewest possible neighbors), then collapsing it into a tile. This process is repeated until the grid is filled.
 
+
+tiles from input grid -> tile variants -> tiles in output grid
+
 ## Plans
 
-- [ ] Parse input image to collect unique tiles
-- [ ] Create adjacency rules from connected tiles
+- [x] Parse input image to collect unique tiles
+- [x] Create adjacency rules from connected tiles
 - [ ] Create frequency hints from connected tiles
 - [ ] Let frequency hints play a role in tile selection
 - [ ] Create a simple GUI for the user to adjust algorithm parameters

@@ -1,86 +1,129 @@
-let tiles = [];
-const tileImages = [];
+const tileVariants = [];
+const scannedTiles = new Set();
 
-let grid = [];
+let inputImage = null;
 
-const DIM = 25;
 
-function preload() {
-  // const path = 'rail';
-  // for (let i = 0; i < 7; i++) {
-  //   tileImages[i] = loadImage(`${path}/tile${i}.png`);
-  // }
+/** 2D Array. Contains tile objects taken from the input image */
+let inputGrid = [];
+/** 2D Array. Contains cells that get collapsed into tiles */
+let outputGrid = [];
 
-  const path = 'tiles/circuit-coding-train';
-  for (let i = 0; i < 13; i++) {
-    tileImages[i] = loadImage(`${path}/${i}.png`);
+/** output image size in tiles */
+let dim = 25; //TODO grab from user input
+/** tile size in pixels*/
+let tilePixelSize = 22; //TODO grab from user input
+let tileDisplaySize = 0; // TODO should depend on size of input image (smaller images should have larger tiles)
+const INPUT_IMAGE_DISPLAY_SIZE = 400;
+
+
+
+/**
+ * Separate the tiles from the input image into individual 
+ * tile objects and store them in the input grid
+ */
+function parseImage() {
+  // Clear the input grid
+  inputGrid = [];
+
+  for (let y = 0, row = 0; y < inputImage.height; y += tilePixelSize, row++) {
+    inputGrid[row] = [];
+    for (let x = 0, col = 0; x < inputImage.width; x += tilePixelSize, col++) {
+      // Extract the portion of the image at the given x and y coordinates
+      const tileImage = inputImage.get(x, y, tilePixelSize, tilePixelSize);
+      const tile = new Tile(tileImage);
+      
+      // Add the tile to the input grid
+      inputGrid[row][col] = tile;
+      
+      // If this type of tile hasn't been seen, make a new variant
+      if (!scannedTiles.has(tile.hash)) {
+        scannedTiles.add(tile.hash);
+        tileVariants.push(tile);
+      }
+    }
+  }
+
+  const gridWidth = inputGrid[0].length;
+  tileDisplaySize = INPUT_IMAGE_DISPLAY_SIZE / gridWidth;
+}
+
+/**
+ * Analyze the tiles in the input grid to determine adjacency rules and frequency hints
+ */
+function analyzeTiles() {
+  // Create adjacency rules and frequency hints for each unique tile
+  const height = inputGrid.length;
+  const width = inputGrid[0].length;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const tile = inputGrid[y][x];
+      
+      if (y > 0) { // there's a tile above us
+        // put the tile above us in the adjacency rules
+        tile.up.push(inputGrid[y - 1][x])
+        
+        // update frequency hints to factor in the tile above us
+
+      }
+      if (x < width - 1) { // there's a tile to our right
+        tile.up.push(inputGrid[y][x + 1])
+        
+
+      }
+      if (y < height - 1) { // there's a tile below us
+        tile.up.push(inputGrid[y + 1][x])
+        
+
+      }
+      if (x > 0) { // there's a tile to our left
+        tile.up.push(inputGrid[y][x - 1])
+        
+
+      }
+    }
   }
 }
 
-function removeDuplicatedTiles(tiles) {
-  const uniqueTilesMap = {};
-  for (const tile of tiles) {
-    const key = tile.edges.join(','); // ex: "ABB,BCB,BBA,AAA"
-    uniqueTilesMap[key] = tile;
-  }
-  return Object.values(uniqueTilesMap);
+function preload() {
+  inputImage = loadImage('sample_input/demo.png'); //TODO grab path from user input
 }
 
 function setup() {
-  createCanvas(400, 400);
-  //randomSeed(15);
+  parseImage(); // parse the example image
+  setupView();
 
-  // tiles[0] = new Tile(tileImages[0], ['AAA', 'AAA', 'AAA', 'AAA']);
-  // tiles[1] = new Tile(tileImages[1], ['ABA', 'ABA', 'ABA', 'AAA']);
-  // tiles[2] = new Tile(tileImages[2], ['BAA', 'AAB', 'AAA', 'AAA']);
-  // tiles[3] = new Tile(tileImages[3], ['BAA', 'AAA', 'AAB', 'AAA']);
-  // tiles[4] = new Tile(tileImages[4], ['ABA', 'ABA', 'AAA', 'AAA']);
-  // tiles[5] = new Tile(tileImages[5], ['ABA', 'AAA', 'ABA', 'AAA']);
-  // tiles[6] = new Tile(tileImages[6], ['ABA', 'ABA', 'ABA', 'ABA']);
 
-  // Loaded and created the tiles
-  tiles[0] = new Tile(tileImages[0], ['AAA', 'AAA', 'AAA', 'AAA']);
-  tiles[1] = new Tile(tileImages[1], ['BBB', 'BBB', 'BBB', 'BBB']);
-  tiles[2] = new Tile(tileImages[2], ['BBB', 'BCB', 'BBB', 'BBB']);
-  tiles[3] = new Tile(tileImages[3], ['BBB', 'BDB', 'BBB', 'BDB']);
-  tiles[4] = new Tile(tileImages[4], ['ABB', 'BCB', 'BBA', 'AAA']);
-  tiles[5] = new Tile(tileImages[5], ['ABB', 'BBB', 'BBB', 'BBA']);
-  tiles[6] = new Tile(tileImages[6], ['BBB', 'BCB', 'BBB', 'BCB']);
-  tiles[7] = new Tile(tileImages[7], ['BDB', 'BCB', 'BDB', 'BCB']);
-  tiles[8] = new Tile(tileImages[8], ['BDB', 'BBB', 'BCB', 'BBB']);
-  tiles[9] = new Tile(tileImages[9], ['BCB', 'BCB', 'BBB', 'BCB']);
-  tiles[10] = new Tile(tileImages[10], ['BCB', 'BCB', 'BCB', 'BCB']);
-  tiles[11] = new Tile(tileImages[11], ['BCB', 'BCB', 'BBB', 'BBB']);
-  tiles[12] = new Tile(tileImages[12], ['BBB', 'BCB', 'BBB', 'BCB']);
+}
 
-  for (let i = 0; i < 12; i++) {
-    tiles[i].index = i;
-  }
+function draw() {
+  noSmooth();
+  background(255);
 
-  const initialTileCount = tiles.length;
-  for (let i = 0; i < initialTileCount; i++) {
-    let tempTiles = [];
-    for (let j = 0; j < 4; j++) {
-      tempTiles.push(tiles[i].rotate(j));
+  const margin = 10;
+  const spacing = tilePixelSize / 5 + 1;
+
+  for (let y = 0; y < inputGrid.length; y++) {
+    for (let x = 0; x < inputGrid[y].length; x++) {
+      const tile = inputGrid[y][x];
+      const xPos = x * (tileDisplaySize + spacing) + margin;
+      const yPos = y * (tileDisplaySize + spacing) + margin;
+      image(tile.img, xPos, yPos, tileDisplaySize, tileDisplaySize);
+
+      // Draw black lines around the tile
+      stroke(0);
+      strokeWeight(1);
+      noFill();
+      rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
     }
-    tempTiles = removeDuplicatedTiles(tempTiles);
-    tiles = tiles.concat(tempTiles);
   }
-  console.log(tiles.length);
-
-  // Generate the adjacency rules based on edges
-  for (let i = 0; i < tiles.length; i++) {
-    const tile = tiles[i];
-    tile.analyze(tiles);
-  }
-
-  startOver();
 }
 
 function startOver() {
   // Create cell for each spot on the grid
-  for (let i = 0; i < DIM * DIM; i++) {
-    grid[i] = new Cell(tiles.length);
+  for (let i = 0; i < dim * dim; i++) {
+    outputGrid[i] = new Cell(tileVariants.length);
   }
 }
 
@@ -103,18 +146,18 @@ function checkValid(arr, valid) {
 function mousePressed() {
   redraw();
 }
-
+/*
 function draw() {
   background(0);
 
-  const w = width / DIM;
-  const h = height / DIM;
-  for (let j = 0; j < DIM; j++) {
-    for (let i = 0; i < DIM; i++) {
-      let cell = grid[i + j * DIM];
+  const w = width / OUTPUT_SIZE;
+  const h = height / OUTPUT_SIZE;
+  for (let j = 0; j < OUTPUT_SIZE; j++) {
+    for (let i = 0; i < OUTPUT_SIZE; i++) {
+      let cell = output_grid[i + j * OUTPUT_SIZE];
       if (cell.collapsed) {
         let index = cell.options[0];
-        image(tiles[index].img, i * w, j * h, w, h);
+        image(tileVariants[index].img, i * w, j * h, w, h);
       } else {
         noFill();
         stroke(51);
@@ -124,7 +167,7 @@ function draw() {
   }
 
   // Pick cell with least entropy
-  let gridCopy = grid.slice();
+  let gridCopy = output_grid.slice();
   gridCopy = gridCopy.filter((a) => !a.collapsed);
   // console.table(grid);
   // console.table(gridCopy);
@@ -133,7 +176,7 @@ function draw() {
     return;
   }
   gridCopy.sort((a, b) => {
-    // return calculateEntropy(a) - calculateEntropy(b);
+    // return a.calculateEntropy() - b.calculateEntropy();
     return a.options.length - b.options.length;
   });
 
@@ -157,49 +200,49 @@ function draw() {
   cell.options = [pick];
 
   const nextGrid = [];
-  for (let j = 0; j < DIM; j++) {
-    for (let i = 0; i < DIM; i++) {
-      let index = i + j * DIM;
-      if (grid[index].collapsed) {
-        nextGrid[index] = grid[index];
+  for (let j = 0; j < OUTPUT_SIZE; j++) {
+    for (let i = 0; i < OUTPUT_SIZE; i++) {
+      let index = i + j * OUTPUT_SIZE;
+      if (output_grid[index].collapsed) {
+        nextGrid[index] = output_grid[index];
       } else {
-        let options = new Array(tiles.length).fill(0).map((x, i) => i);
+        let options = new Array(tileVariants.length).fill(0).map((x, i) => i);
         // Look up
         if (j > 0) {
-          let up = grid[i + (j - 1) * DIM];
+          let up = output_grid[i + (j - 1) * OUTPUT_SIZE];
           let validOptions = [];
           for (let option of up.options) {
-            let valid = tiles[option].down;
+            let valid = tileVariants[option].down;
             validOptions = validOptions.concat(valid);
           }
           checkValid(options, validOptions);
         }
         // Look right
-        if (i < DIM - 1) {
-          let right = grid[i + 1 + j * DIM];
+        if (i < OUTPUT_SIZE - 1) {
+          let right = output_grid[i + 1 + j * OUTPUT_SIZE];
           let validOptions = [];
           for (let option of right.options) {
-            let valid = tiles[option].left;
+            let valid = tileVariants[option].left;
             validOptions = validOptions.concat(valid);
           }
           checkValid(options, validOptions);
         }
         // Look down
-        if (j < DIM - 1) {
-          let down = grid[i + (j + 1) * DIM];
+        if (j < OUTPUT_SIZE - 1) {
+          let down = output_grid[i + (j + 1) * OUTPUT_SIZE];
           let validOptions = [];
           for (let option of down.options) {
-            let valid = tiles[option].up;
+            let valid = tileVariants[option].up;
             validOptions = validOptions.concat(valid);
           }
           checkValid(options, validOptions);
         }
         // Look left
         if (i > 0) {
-          let left = grid[i - 1 + j * DIM];
+          let left = output_grid[i - 1 + j * OUTPUT_SIZE];
           let validOptions = [];
           for (let option of left.options) {
-            let valid = tiles[option].right;
+            let valid = tileVariants[option].right;
             validOptions = validOptions.concat(valid);
           }
           checkValid(options, validOptions);
@@ -211,5 +254,7 @@ function draw() {
     }
   }
 
-  grid = nextGrid;
+  output_grid = nextGrid;
 }
+*/
+
