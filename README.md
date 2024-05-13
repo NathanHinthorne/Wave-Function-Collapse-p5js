@@ -37,4 +37,6 @@ Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/)
 
 ## Acknowledgements
 
+The Wave Function Collapse algorithm was created by Maxim Gumin. His GitHub repository can be found [here](https://github.com/mxgmn/WaveFunctionCollapse).
+
 Daniel Shiffman's implementation of WFC was used as a reference for this project. His implementation can be found [here](https://github.com/CodingTrain/Wave-Function-Collapse).
