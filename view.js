@@ -143,6 +143,13 @@ function setupView() {
         
     });
 
+
+    // Create GitHub link to the repo
+    const githubLink = createA('https://github.com/NathanHinthorne/Wave-Function-Collapse?tab=readme-ov-file', 'GitHub Repository ');
+    githubLink.position(10, 655);
+    githubLink.class('github-link');
+    githubLink.elt.innerHTML += '<i class="fab fa-github"></i>'; // Place icon inside the button
+    githubLink.style('width', '145px');
 }
 
 function playAnimation() {

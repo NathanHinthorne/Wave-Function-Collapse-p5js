@@ -29,7 +29,7 @@ tiles from input grid -> tile variants -> tiles in output grid
 - [x] Create adjacency rules from connected tiles
 - [ ] Create frequency hints from connected tiles
 - [ ] Let frequency hints play a role in tile selection
-- [ ] Create a simple GUI for the user to adjust algorithm parameters
+- [x] Create a simple GUI for the user to adjust algorithm parameters
 
 ## How to use
 
