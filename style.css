@@ -36,6 +36,20 @@ button:active {
     background-color: #b71c1c;
 }
 
+.grayed-out {
+    background-color: #f1f1f1;
+    color: #c1c1c1;
+    cursor: default;
+}
+
+.grayed-out:hover {
+    background-color: #f1f1f1;
+}
+
+.grayed-out:active {
+    background-color: #f1f1f1;
+}
+
 
 
 input[type=text] {
@@ -126,5 +140,20 @@ label {
 
 .github-link:hover {
     background-color: #555;
+}
+
+.linkedin-link {
+    position: fixed;
+    top: 0;
+    right: 50px;
+    padding: 10px;
+    background-color: #0077B5;
+    color: white;
+    text-decoration: none;
+    border-radius: 0 0 10px 0;
+}
+
+.linkedin-link:hover {
+    background-color: #005f8b;
 }
 

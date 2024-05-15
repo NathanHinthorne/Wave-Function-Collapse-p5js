@@ -21,15 +21,19 @@ The algorithm works in the following way:
     a. The propagation of tiles is done by choosing the cell with the lowest entropy (the cell with the fewest possible neighbors), then collapsing it into a tile. This process is repeated until the grid is filled.
 
 
+From tiles in the input grid, we can create a list of tile variants. The tile variants are copied into cells in the output grid. The algorithm then uses the adjacency rules and frequency hints to collapse the cells into tiles in the output grid.
 tiles from input grid -> tile variants -> tiles in output grid
 
 ## Plans
 
 - [x] Parse input image to collect unique tiles
 - [x] Create adjacency rules from connected tiles
-- [ ] Create frequency hints from connected tiles
+- [x] Create frequency hints from connected tiles
 - [ ] Let frequency hints play a role in tile selection
 - [x] Create a simple GUI for the user to adjust algorithm parameters
+- [ ] Experiment with different implementations of WFC (freq hints vs no freq hints, memoization for entropies vs re-calculation of all entropies, etc.). 
+- [ ] Gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
+- [ ] Allow the user to upload the tile variant images in ADDITION to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development.
 
 ## How to use
 
