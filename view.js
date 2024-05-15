@@ -54,11 +54,12 @@ function setupView() {
 
     // Create an analyze button
     const buttonX = 500;
-    const firstButton = 100;
     analyzeButton = createButton('Analyze');
-    analyzeButton.position(buttonX, firstButton);
+    analyzeButton.position(buttonX, 60);
     analyzeButton.mousePressed(analyze);
     analyzeButton.style('width', '120px');
+
+    const firstButton = 220;
 
     // Create play button
     playButton = createButton('');
@@ -69,10 +70,12 @@ function setupView() {
     playButton.class('grayed-out');
 
     // Create pause button
-    // pauseButton = createButton('');
-    // pauseButton.position(buttonX, startButtonY + 120);
-    // pauseButton.mousePressed(pauseAnimation);   
-    // pauseButton.elt.innerHTML = '<i class="fas fa-pause"></i>'; // Place icon inside the button
+    pauseButton = createButton('');
+    pauseButton.position(buttonX, firstButton + 120);
+    pauseButton.mousePressed(pauseAnimation);   
+    pauseButton.elt.innerHTML = '<i class="fas fa-pause"></i>'; // Place icon inside the button
+    pauseButton.disabled = true; // Disable the button until the image is analyzed
+    pauseButton.class('grayed-out');
     
     // Create reset button
     resetButton = createButton('');
@@ -84,7 +87,7 @@ function setupView() {
 
     // // Create dimension input box
     // dimInput = createInput('');
-    // dimInput.position(865, 540);
+    // dimInput.position(505, 140);
     // dimInput.style('width', '120px');
     // dimInput.input(() => {
     //     updateSliderFromInput(dimSlider, dimInput);
@@ -95,7 +98,7 @@ function setupView() {
 
     // // Create dimension slider
     // dimSlider = createSlider(0, 100, 0);
-    // dimSlider.position(850, 600);
+    // dimSlider.position(490, 200);
     // dimSlider.style('width', '145px');
     // dimSlider.input(() => {
     //     updateInputFromSlider(dimInput, dimSlider);
@@ -260,12 +263,16 @@ function enableButtons(isEnabled) {
     if (isEnabled) {
         playButton.disabled = false;
         resetButton.disabled = false;
+        pauseButton.disabled = false;
         playButton.removeClass('grayed-out');
+        pauseButton.removeClass('grayed-out');
         resetButton.removeClass('grayed-out');
     } else {
         playButton.disabled = true;
         resetButton.disabled = true;
+        pauseButton.disabled = true;
         playButton.class('grayed-out');
+        pauseButton.class('grayed-out');
         resetButton.class('grayed-out');
     }
 }

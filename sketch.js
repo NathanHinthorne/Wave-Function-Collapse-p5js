@@ -10,15 +10,17 @@ let inputGrid = [];
 /** 2D Array. Contains cells that get collapsed into tiles */
 let outputGrid = [];
 
-/** output image size in tiles */
-let dim = 25; //TODO grab from user input
-/** tile size in pixels*/
-let tilePixelSize = 22; //TODO grab from user input
-let tileDisplaySize = 0; // TODO should depend on size of input image (smaller images should have larger tiles)
+let dim = 50; //TODO grab from user input
+let tilePixelSize = 22; 
+let tileDisplaySize = 0;
 const INPUT_IMAGE_DISPLAY_SIZE = 400;
+const OUTPUT_IMAGE_DISPLAY_SIZE = 400;
 
 let inputImage = null;
+
+// Flags to keep track of the state of the program
 let imageIsAnalyzed = false;
+let outputIsGenerated = false;
 
 /**
  * Separate the tiles from the input image into individual 
@@ -142,6 +144,7 @@ function setup() {
 function draw() {
   noSmooth();
   background(255);
+  // clear(); // clear the canvas, but keep the background transparent
 
   // parseImage();
 
@@ -167,6 +170,10 @@ function draw() {
 
   if (imageIsAnalyzed) {
     displayTileVariants(450, 500, 400, 180);
+  }
+
+  if (outputIsGenerated) {
+    displayOutputGrid();
   }
 
   // // draw output grid
