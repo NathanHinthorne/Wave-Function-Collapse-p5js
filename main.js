@@ -10,6 +10,7 @@ function createWindow() {
     });
 
     win.loadFile('index.html');
+    win.maximize();
 }
 
 app.whenReady().then(createWindow);

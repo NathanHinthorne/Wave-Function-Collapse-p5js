@@ -1,6 +1,7 @@
 {
   "name": "WFC-Demonstration",
   "description": "Generates terrain based on patterns from an input image.",
+  "version": "1.0.0",
   "author": "Nathan Hinthorne",
   "main": "main.js",
   "scripts": {
