@@ -8,17 +8,16 @@ class Cell {
     this.options = tileIndices; // start off with every tile as an option
   }
 
-  /**
-   * Uses Shannon entropy to calculate the entropy of the cell.
-   * 
-   * @returns {number} The entropy of the cell
-   */
   calculateEntropy() {
     if (this.collapsed) {
       return 0;
     }
 
     return this.options.length; //! TEMPORARY
+
+    // // TODO to find probability, find the total frequency that every tile variant maps to each tile option in this cell
+    // let totalFrequency = 0;
+    
 
     // let entropy = 0;
     // for (let option of this.options) {
