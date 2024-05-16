@@ -25,16 +25,29 @@ button:active {
     background-color: #316533;
 }
 
-.specialButton {
+.red-button {
     background-color: #f44336;
 }
 
-.specialButton:hover {
+.red-button:hover {
     background-color: #d32f2f;
 }
 
-.specialButton:active {
+.red-button:active {
     background-color: #b71c1c;
+}
+
+.yellow-button {
+    background-color: #ffeb3b;
+    color: black;
+}
+
+.yellow-button:hover {
+    background-color: #fdd835;
+}
+
+.yellow-button:active {
+    background-color: #fbc02d;
 }
 
 .grayed-out {
@@ -143,18 +156,42 @@ label {
     background-color: #555;
 }
 
-.linkedin-link {
-    position: fixed;
-    top: 0;
-    right: 50px;
+#help-menu {
+    border-radius: 5px;
     padding: 10px;
-    background-color: #0077B5;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    z-index: 1;
+    transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out; /* Add transition for padding */
+    max-height: 200px; /* Set max-height for transition */
+    box-sizing: border-box; /* Include padding and border in max-height */
+    overflow-y: auto;
+
+}
+
+#help-menu.hide {
+    max-height: 0; /* Set max-height to 0 to hide the menu */
+    padding: 0; /* Set padding to 0 to hide the menu */
+}
+
+#help-menu p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+#help-menu p:first-child {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#help-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
     color: white;
     text-decoration: none;
-    border-radius: 0 0 10px 0;
+    border-radius: 5px;
+    cursor: pointer;
 }
-
-.linkedin-link:hover {
-    background-color: #005f8b;
-}
-

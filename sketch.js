@@ -13,7 +13,7 @@ let outputGrid = [];
 let dim = 50; //TODO grab from user input
 let tilePixelSize = 22; 
 let tileDisplaySize = 0;
-const INPUT_IMAGE_DISPLAY_SIZE = 400;
+const INPUT_IMAGE_DISPLAY_SIZE = 450;
 const OUTPUT_IMAGE_DISPLAY_SIZE = 400;
 
 let inputImage = null;
@@ -21,6 +21,35 @@ let inputImage = null;
 // Flags to keep track of the state of the program
 let imageIsAnalyzed = false;
 let outputIsGenerated = false;
+
+
+function preload() {
+  inputImage = loadImage('sample_input/demo.png'); //TODO grab path from user input
+}
+
+function setup() {
+  parseImage(); // parse the example image
+  setupView();
+}
+
+function draw() {
+  noSmooth();
+
+  background(255);
+  // clear(); // use this instead if you want to make a cool css background in style.css
+
+  displayInputGrid(10, 10, INPUT_IMAGE_DISPLAY_SIZE, INPUT_IMAGE_DISPLAY_SIZE);
+
+  if (imageIsAnalyzed) {
+    displayTileVariants(450, 500, 400, 180);
+  }
+
+  if (outputIsGenerated) {
+    displayOutputGrid();
+  }
+}
+
+
 
 /**
  * Separate the tiles from the input image into individual 
@@ -40,9 +69,6 @@ function parseImage() {
       inputGrid[row][col] = tile;
     }
   }
-
-  const gridWidth = inputGrid[0].length;
-  tileDisplaySize = INPUT_IMAGE_DISPLAY_SIZE / gridWidth;
 }
 
 function analyzeTiles() {
@@ -132,81 +158,6 @@ function findNeighbors() {
 }
 
 
-function preload() {
-  inputImage = loadImage('sample_input/demo.png'); //TODO grab path from user input
-}
-
-function setup() {
-  parseImage(); // parse the example image
-  setupView();
-}
-
-function draw() {
-  noSmooth();
-  background(255);
-  // clear(); // clear the canvas, but keep the background transparent
-
-  // parseImage();
-
-  // draw input grid
-  const margin = 10;
-  const spacing = tilePixelSize / 5 + 1;
-
-  for (let y = 0; y < inputGrid.length; y++) {
-    for (let x = 0; x < inputGrid[y].length; x++) {
-      const tile = inputGrid[y][x];
-      const xPos = x * (tileDisplaySize + spacing) + margin;
-      const yPos = y * (tileDisplaySize + spacing) + margin;
-      image(tile.img, xPos, yPos, tileDisplaySize, tileDisplaySize);
-
-      // Draw black lines around the tile
-      stroke(0);
-      strokeWeight(1);
-      noFill();
-      rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
-    }
-  }
-
-
-  if (imageIsAnalyzed) {
-    displayTileVariants(450, 500, 400, 180);
-  }
-
-  if (outputIsGenerated) {
-    displayOutputGrid();
-  }
-
-  // // draw output grid
-  // const width = outputGrid.length;
-  // const height = outputGrid[0].length;
-  // for (let y = 0; y < height; y++) {
-  //   for (let x = 0; x < width; x++) {
-  //     let cell = outputGrid[y][x];
-  //     if (cell.collapsed) {
-  //       let index = cell.options[0]; // only one option when collapsed
-  //       image(tileVariants[index].img, x * tileDisplaySize, y * tileDisplaySize, tileDisplaySize, tileDisplaySize);
-  //     } else {
-  //       noFill();
-  //       stroke(51);
-  //       rect(x * tileDisplaySize, y * tileDisplaySize, tileDisplaySize, tileDisplaySize);
-  //     }
-  //   }
-  // }
-  
-  // // draw entropy values
-  // for (let y = 0; y < height; y++) {
-  //   for (let x = 0; x < width; x++) {
-  //     let cell = outputGrid[y][x];
-  //     if (!cell.collapsed) {
-  //       let entropy = cell.calculateEntropy();
-  //       fill(0);
-  //       textSize(8);
-  //       text(entropy, x * tileDisplaySize + 2, y * tileDisplaySize + 10);
-  //     }
-  //   }
-  // }
-}
-
 /**
  * Clear the output grid and create a new cell for each spot on the grid
  */
@@ -224,10 +175,6 @@ function startOver() {
 
 function populateOutputGrid() {
 
-}
-
-function mousePressed() {
-  redraw();
 }
 
 /*

@@ -1,4 +1,5 @@
-let analyzeButton, playButton, pauseButton, resetButton, dimInput, fileInput;
+let analyzeButton, playButton, pauseButton, resetButton, dimInput, fileInput, tileSizeInput,
+    tileSizeSlider, dimSlider, loadingBar, saveButton, saveTilemapButton, githubLink, helpButton, helpMenu;
 
 function setupView() {
     // --- CANVAS ---
@@ -14,7 +15,6 @@ function setupView() {
     exampleText.style('color', 'rgba(0,0,0,0.3)');
     exampleText.position(100, 100);
     exampleText.id('example-text');
-
 
 
     // --- INPUT IMAGE PARAMETERS ---
@@ -119,7 +119,7 @@ function setupView() {
     // --- DOWNLOAD BUTTONS ---
 
     // Create a download image button
-    const saveButton = createButton('Download Image <br>');
+    saveButton = createButton('Download Image <br>');
     saveButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveButton.position(1050, 600);
     saveButton.style('width', '120px');
@@ -130,7 +130,7 @@ function setupView() {
     });
 
     // Create a download tilemap json button
-    const saveTilemapButton = createButton('Download Tilemap <br>');
+    saveTilemapButton = createButton('Download Tilemap <br>');
     saveTilemapButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveTilemapButton.position(1200, 600);
     saveTilemapButton.style('width', '120px');
@@ -142,20 +142,16 @@ function setupView() {
 
 
     // Create GitHub link to the repo
-    const githubLink = createA('https://github.com/NathanHinthorne/Wave-Function-Collapse?tab=readme-ov-file', 'GitHub Repository ');
+    githubLink = createA('https://github.com/NathanHinthorne/Wave-Function-Collapse?tab=readme-ov-file', 'GitHub Repository ');
     githubLink.position(10, 655);
     githubLink.class('github-link');
     githubLink.elt.innerHTML += '<i class="fab fa-github"></i>'; // Place icon inside the button
     githubLink.style('width', '145px');
 
-    // Create a link to my linked in
-    // const linkedInLink = createA('https://www.linkedin.com/in/nathan-hinthorne/', 'LinkedIn ');
-    // linkedInLink.position(180, 655);
-    // linkedInLink.class('linkedin-link');
-    // linkedInLink.elt.innerHTML += '<i class="fab fa-linkedin"></i>'; // Place icon inside the button
-    // linkedInLink.style('width', '145px');
-    
+    // Create a help menu
+    displayHelpMenu(700, 10, 400, 400);
 }
+
 
 function analyze() {
     analyzeTiles();
@@ -336,4 +332,109 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
         textSize(18);
         text("...", cardX + 10, cardY + cardHeight - 5);
     }
+}
+
+function displayInputGrid(cardX, cardY, cardWidth, cardHeight) {
+    const margin = 10;
+    const spacing = tilePixelSize / 5 + 1;
+    const maxTilesX = inputGrid[0].length;
+    const maxTilesY = inputGrid.length;
+
+    // Calculate the maximum tile size that would fit within the card's dimensions
+    const tileDisplaySizeX = (cardWidth - 2 * margin - (maxTilesX - 1) * spacing) / maxTilesX;
+    const tileDisplaySizeY = (cardHeight - 2 * margin - (maxTilesY - 1) * spacing) / maxTilesY;
+    const tileDisplaySize = Math.min(tileDisplaySizeX, tileDisplaySizeY);
+
+    // Draw a light gray background behind the input grid
+    fill(230);
+    noStroke();
+    rect(cardX, cardY, cardWidth, cardHeight, 2);
+
+    for (let y = 0; y < maxTilesY; y++) {
+        for (let x = 0; x < maxTilesX; x++) {
+            const tile = inputGrid[y][x];
+            const xPos = cardX + x * (tileDisplaySize + spacing) + margin;
+            const yPos = cardY + y * (tileDisplaySize + spacing) + margin;
+            image(tile.img, xPos, yPos, tileDisplaySize, tileDisplaySize);
+
+            // Draw black lines around the tile
+            stroke(0);
+            strokeWeight(1);
+            noFill();
+            rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+        }
+    }
+}
+
+function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
+    const margin = 10;
+    const spacing = tilePixelSize / 5 + 1;
+    const width = outputGrid.length;
+    const height = outputGrid[0].length;
+
+    // Calculate the maximum tile size that would fit within the grid's dimensions
+    const tileDisplaySizeX = (cardWidth - 2 * margin - (width - 1) * spacing) / width;
+    const tileDisplaySizeY = (cardHeight - 2 * margin - (height - 1) * spacing) / height;
+    const tileDisplaySize = Math.min(tileDisplaySizeX, tileDisplaySizeY);
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            let cell = outputGrid[y][x];
+            const xPos = cardX + x * (tileDisplaySize + spacing) + margin;
+            const yPos = cardY + y * (tileDisplaySize + spacing) + margin;
+            if (cell.collapsed) {
+                let index = cell.options[0]; // only one option when collapsed
+                image(tileVariants[index].img, xPos, yPos, tileDisplaySize, tileDisplaySize);
+            } else {
+                noFill();
+                stroke(51);
+                rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+
+                // Draw the entropy value in the center of the cell
+                fill(0);
+                textSize(10);
+                textAlign(CENTER, CENTER);
+                text(cell.calculateEntropy(), xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
+            }
+        }
+    }
+}
+
+function displayHelpMenu(cardX, cardY, cardWidth, cardHeight) {
+
+    // Create a dropdown menu for the help menu that the user can click on
+    helpMenu = createDiv('');
+    helpMenu.id('help-menu'); // Assign an ID for CSS styling
+    helpMenu.position(cardX, cardY); // Position the menu
+    helpMenu.size(cardWidth, cardHeight); // Set the size of the menu
+
+    // Create a title for the help menu
+    const title = createP('Help');
+    title.parent(helpMenu);
+
+    // Create a paragraph for the help menu
+    const helpText = createP(
+        'This tool is used to generate images/tilemaps ' +
+        'using patterns identified from an input image. ' +
+        'To use, first upload an image composed of tiles ' +
+        '(similar to the example below). Second, set the ' +
+        'tile size. Third, click "Analyze" to generate ' +
+        'tile variants. Finally, click "Play" to generate ' +
+        'the tilemap.');
+    helpText.parent(helpMenu);
+
+    helpMenu.class('hide'); // Initially hide the menu
+
+    // create a help button that will display the help menu when clicked
+    helpButton = createButton('');
+    helpButton.elt.innerHTML = '<i class="fas fa-question"></i>'; // Place icon inside the button
+    helpButton.position(cardX + cardWidth + 10, cardY);
+    helpButton.class('yellow-button')
+    helpButton.mousePressed(() => {
+        if (helpMenu.class().includes('hide')) {
+            helpMenu.removeClass('hide'); // Remove 'hide' class to show the menu
+        } else {
+            helpMenu.class('hide'); // Add 'hide' class to hide the menu
+        }
+    });
 }
