@@ -7,7 +7,7 @@ class Tile {
     // Map of tile indices to their frequency,
     // This rolls adjacency rules and frequency hints into one
     
-    // Key: Number, Value: Number (0-100)
+    // Key: Tile Index, Value: Number of times this tile was found connected to given tile index
     this.up = new Map();
     this.right = new Map();
     this.down = new Map();

@@ -13,9 +13,9 @@ class Cell {
       return 0;
     }
 
-    return this.options.length; //! TEMPORARY
+    return this.options.length;
 
-    // // TODO to find probability, find the total frequency that every tile variant maps to each tile option in this cell
+    // TODO to find probability, find the total frequency that every tile variant maps to each tile option in this cell
     // let totalFrequency = 0;
     
 
@@ -27,5 +27,22 @@ class Cell {
     //   entropy -= probability * Math.log2(probability);
     // }
     // return entropy;
+  }
+
+  collapse() {
+    if (this.collapsed) {
+      throw new Error('Cell has already been collapsed');
+    }
+
+    if (this.options.length === 0) {
+      return new Error('Tried to collapse, but no tile options were available')
+    }
+
+    // TODO let the frequencies play a role in tile selection
+
+    const pick = random(this.options);
+    this.options = [pick];
+
+    collapsed = true;
   }
 }

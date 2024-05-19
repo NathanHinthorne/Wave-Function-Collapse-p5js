@@ -1,30 +1,27 @@
 /** The types of tiles that can be used in the output grid */
 let tileVariants = [];
 
-/** A set of hashes of tiles that have already been seen by the image parser*/
-let scannedTiles = new Set();
-
 /** 2D Array. Contains tile objects taken from the input image */
 let inputGrid = [];
 
 /** 2D Array. Contains cells that get collapsed into tiles */
 let outputGrid = [];
 
-let dim = 50; //TODO grab from user input
+let dim = 10;
 let tilePixelSize = 22; 
-let tileDisplaySize = 0;
 const INPUT_IMAGE_DISPLAY_SIZE = 450;
-const OUTPUT_IMAGE_DISPLAY_SIZE = 400;
+const OUTPUT_IMAGE_DISPLAY_SIZE = 450;
 
 let inputImage = null;
 
 // Flags to keep track of the state of the program
 let imageIsAnalyzed = false;
-let outputIsGenerated = false;
+let isPlaying = false;
+let outputIsPrepared = false;
 
 
 function preload() {
-  inputImage = loadImage('sample_input/demo.png'); //TODO grab path from user input
+  inputImage = loadImage('sample_input/demo2.png');
 }
 
 function setup() {
@@ -41,12 +38,17 @@ function draw() {
   displayInputGrid(10, 10, INPUT_IMAGE_DISPLAY_SIZE, INPUT_IMAGE_DISPLAY_SIZE);
 
   if (imageIsAnalyzed) {
-    displayTileVariants(450, 500, 400, 180);
+    displayTileVariants(450, 500, 500, 180);
   }
 
-  if (outputIsGenerated) {
-    displayOutputGrid();
+  if (isPlaying) {
+    // populateOutputGrid();
   }
+
+  if (outputIsPrepared) {
+    displayOutputGrid(1050, 10, OUTPUT_IMAGE_DISPLAY_SIZE, OUTPUT_IMAGE_DISPLAY_SIZE);
+  }
+
 }
 
 
@@ -81,7 +83,9 @@ function analyzeTiles() {
 
 function findTileVariants() {
   tileVariants = [];
-  scannedTiles.clear();
+
+  /** A set of hashes of tiles that have already been seen by the image parser */
+  let scannedTiles = new Set();
 
   const width = inputGrid[0].length;
   const height = inputGrid.length;
@@ -171,105 +175,37 @@ function startOver() {
       outputGrid[y][x] = new Cell(tileVariants);
     }
   }
+
+  outputIsPrepared = true;
 }
+
 
 function populateOutputGrid() {
+  // 1.  Create a list of cells that have not yet been collapsed.
+  const uncollapsedCells = outputGrid.flat().filter(cell => !cell.collapsed);
 
-}
+  // 2. From this list, select the cell with the lowest entropy.
+  // The entropy of a cell is calculated in the calculateEntropy method in the Cell class.
+  const sortedCells = uncollapsedCells.sort((a, b) => a.calculateEntropy() - b.calculateEntropy());
+  const lowestEntropyCell = sortedCells[0];
 
-/*
-function draw() {
-
-
-
-  // Pick cell with least entropy
-  let gridCopy = outputGrid.slice();
-  gridCopy = gridCopy.filter((a) => !a.collapsed);
-  // console.table(grid);
-  // console.table(gridCopy);
-
-  if (gridCopy.length == 0) {
-    return;
-  }
-  gridCopy.sort((a, b) => {
-    return a.calculateEntropy() - b.calculateEntropy();
-  });
-
-  let len = gridCopy[0].options.length;
-  let stopIndex = 0;
-  for (let i = 1; i < gridCopy.length; i++) {
-    if (gridCopy[i].options.length > len) {
-      stopIndex = i;
-      break;
-    }
-  }
-
-  if (stopIndex > 0) gridCopy.splice(stopIndex);
-  const cell = random(gridCopy);
-  cell.collapsed = true;
-  const pick = random(cell.options);
-  if (pick === undefined) {
+  // 3. Collapse the selected cell. This is done by choosing a random tile index 
+  // from its options field. Once a tile index is chosen, the cell's collapsed field 
+  // is set to true and its options field is updated to contain only the chosen tile index.
+  if (lowestEntropyCell.options.length === 0) {
+    // TODO implement a way to backtrack instead of restarting
     startOver();
     return;
   }
-  cell.options = [pick];
+  lowestEntropyCell.collapse();
 
-  const nextGrid = [];
-  for (let j = 0; j < dim; j++) {
-    for (let i = 0; i < dim; i++) {
-      let index = i + j * dim;
-      if (outputGrid[index].collapsed) {
-        nextGrid[index] = outputGrid[index];
-      } else {
-        let options = new Array(tileVariants.length).fill(0).map((x, i) => i);
-        // Look up
-        if (j > 0) {
-          let up = outputGrid[i + (j - 1) * dim];
-          let validOptions = [];
-          for (let option of up.options) {
-            let valid = tileVariants[option].down;
-            validOptions = validOptions.concat(valid);
-          }
-          checkValid(options, validOptions);
-        }
-        // Look right
-        if (i < dim - 1) {
-          let right = outputGrid[i + 1 + j * dim];
-          let validOptions = [];
-          for (let option of right.options) {
-            let valid = tileVariants[option].left;
-            validOptions = validOptions.concat(valid);
-          }
-          checkValid(options, validOptions);
-        }
-        // Look down
-        if (j < dim - 1) {
-          let down = outputGrid[i + (j + 1) * dim];
-          let validOptions = [];
-          for (let option of down.options) {
-            let valid = tileVariants[option].up;
-            validOptions = validOptions.concat(valid);
-          }
-          checkValid(options, validOptions);
-        }
-        // Look left
-        if (i > 0) {
-          let left = outputGrid[i - 1 + j * dim];
-          let validOptions = [];
-          for (let option of left.options) {
-            let valid = tileVariants[option].right;
-            validOptions = validOptions.concat(valid);
-          }
-          checkValid(options, validOptions);
-        }
+  // 4. Update the options fields of the neighboring cells based on the adjacency rules 
+  // and frequency hints of the collapsed cell's tile. The adjacency rules and 
+  // frequency hints are determined in the findNeighbors function in sketch.js.
+  // The adjacency rules are stored in the up, right, down, and left fields of each tile, 
+  // where each field is a map of valid neighboring tile indices to their frequencies.
 
-        // I could immediately collapse if only one option left?
-        nextGrid[index] = new Cell(options);
-      }
-    }
-  }
+  // 5. Repeat steps 2 - 4 until all cells in the outputGrid have been collapsed.
 
-  outputGrid = nextGrid;
 }
 
-*/

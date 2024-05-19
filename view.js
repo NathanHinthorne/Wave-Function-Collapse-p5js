@@ -1,5 +1,6 @@
 let analyzeButton, playButton, pauseButton, resetButton, dimInput, fileInput, tileSizeInput,
-    tileSizeSlider, dimSlider, loadingBar, saveButton, saveTilemapButton, githubLink, helpButton, helpMenu;
+    tileSizeSlider, dimSlider, loadingBar, saveImageButton, saveTilemapButton, githubLink, helpButton, helpMenu;
+
 
 function setupView() {
     // --- CANVAS ---
@@ -64,7 +65,7 @@ function setupView() {
     // Create play button
     playButton = createButton('');
     playButton.position(buttonX, firstButton + 60);
-    playButton.mousePressed(playAnimation);
+    playButton.mousePressed(handlePlay);
     playButton.elt.innerHTML = '<i class="fas fa-play"></i>'; // Place icon inside the button
     playButton.disabled = true; // Disable the button until the image is analyzed
     playButton.class('grayed-out');
@@ -72,7 +73,7 @@ function setupView() {
     // Create pause button
     pauseButton = createButton('');
     pauseButton.position(buttonX, firstButton + 120);
-    pauseButton.mousePressed(pauseAnimation);   
+    pauseButton.mousePressed(handlePause);   
     pauseButton.elt.innerHTML = '<i class="fas fa-pause"></i>'; // Place icon inside the button
     pauseButton.disabled = true; // Disable the button until the image is analyzed
     pauseButton.class('grayed-out');
@@ -80,31 +81,31 @@ function setupView() {
     // Create reset button
     resetButton = createButton('');
     resetButton.position(buttonX, firstButton + 180);
-    resetButton.mousePressed(resetAnimation);  
+    resetButton.mousePressed(handleReset);  
     resetButton.elt.innerHTML = '<i class="fas fa-undo"></i>'; // Place icon inside the button
     resetButton.disabled = true; // Disable the button until the image is analyzed
     resetButton.class('grayed-out');
 
-    // // Create dimension input box
-    // dimInput = createInput('');
-    // dimInput.position(505, 140);
-    // dimInput.style('width', '120px');
-    // dimInput.input(() => {
-    //     updateSliderFromInput(dimSlider, dimInput);
-    //     updateDim();
-    // });
-    // dimInput.changed(validateInput)
-    // dimInput.attribute('placeholder', 'Dimensions'); // Set placeholder text
+    // Create dimension input box
+    dimInput = createInput('');
+    dimInput.position(505, 140);
+    dimInput.style('width', '120px');
+    dimInput.input(() => {
+        updateSliderFromInput(dimSlider, dimInput);
+        updateDim();
+    });
+    dimInput.changed(validateInput)
+    dimInput.attribute('placeholder', 'Dimensions'); // Set placeholder text
 
-    // // Create dimension slider
-    // dimSlider = createSlider(0, 100, 0);
-    // dimSlider.position(490, 200);
-    // dimSlider.style('width', '145px');
-    // dimSlider.input(() => {
-    //     updateInputFromSlider(dimInput, dimSlider);
-    //     updateDim();
-    // });
-    // dimSlider.hide();
+    // Create dimension slider
+    dimSlider = createSlider(0, 100, 0);
+    dimSlider.position(490, 200);
+    dimSlider.style('width', '145px');
+    dimSlider.input(() => {
+        updateInputFromSlider(dimInput, dimSlider);
+        updateDim();
+    });
+    dimSlider.hide();
 
     // Create a loading bar for the progress of the algorithm
     // loadingBar = createDiv('');
@@ -119,15 +120,13 @@ function setupView() {
     // --- DOWNLOAD BUTTONS ---
 
     // Create a download image button
-    saveButton = createButton('Download Image <br>');
-    saveButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
-    saveButton.position(1050, 600);
-    saveButton.style('width', '120px');
-    saveButton.style('font-size', '12px');
+    saveImageButton = createButton('Download Image <br>');
+    saveImageButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
+    saveImageButton.position(1050, 600);
+    saveImageButton.style('width', '120px');
+    saveImageButton.style('font-size', '12px');
     // saveButton.hide();
-    saveButton.mousePressed(() => {
-        
-    });
+    saveImageButton.mousePressed(handleImageDownload);
 
     // Create a download tilemap json button
     saveTilemapButton = createButton('Download Tilemap <br>');
@@ -136,9 +135,8 @@ function setupView() {
     saveTilemapButton.style('width', '120px');
     saveTilemapButton.style('font-size', '12px');
     // saveTilemapButton.hide();
-    saveTilemapButton.mousePressed(() => {
-        
-    });
+    saveTilemapButton.mousePressed(handleTilemapDownload);
+    enableDownloadButton(false);
 
 
     // Create GitHub link to the repo
@@ -149,29 +147,29 @@ function setupView() {
     githubLink.style('width', '145px');
 
     // Create a help menu
-    displayHelpMenu(700, 10, 400, 400);
+    // displayHelpMenu(700, 10, 400, 400);
 }
 
 
 function analyze() {
     analyzeTiles();
     imageIsAnalyzed = true;
-    enableButtons(true);
+    enableEditButtons(true);
 }
 
-function playAnimation() {
-    // startOver();
-    // populateOutputGrid();
+function handlePlay() {
+    startOver();
+    isPlaying = true;
+    console.log("Generating output...");
 }
 
-function pauseAnimation() {
-    // Code to pause the animation
-    console.log('pause');
+function handlePause() {
+    isPlaying = false;
+    console.log("Pausing output generation...");
 }
 
-function resetAnimation() {
-    // Code to reset the animation
-    console.log('reset');
+function handleReset() {
+    startOver();
 }
 
 function updateDim() {
@@ -188,7 +186,8 @@ function updateTileSize() {
 
             parseImage();
             imageIsAnalyzed = false;
-            enableButtons(false);
+            outputIsPrepared = false;
+            enableEditButtons(false);
             redraw();
 
             const error = select('#tile-size-error');
@@ -237,7 +236,8 @@ function updateInputFromSlider(input, slider) {
 function handleFile(file) {
     print("user submitted file: ", file.name);
     imageIsAnalyzed = false;
-    enableButtons(false);
+    outputIsPrepared = false;
+    enableEditButtons(false);
 
     // TODO check if file is an image
     if (file.type === 'image') {
@@ -255,7 +255,32 @@ function handleFile(file) {
     }
 }
 
-function enableButtons(isEnabled) {
+function handleImageDownload() {
+    //TODO save an image of the displayed output grid
+
+    const test = createGraphics(400, 400);
+    test.background(255);
+    test.fill(0);
+    test.textSize(32);
+    test.text('Hello', 10, 50);
+    test.save('test.png');
+}
+
+function handleTilemapDownload() {
+    //TODO save each tile, which is cell.options[0], in the output grid to a json file
+
+    const test = {
+        "tilemap": [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8]
+        ]
+    };
+
+    saveJSON(test, 'test.json');
+}
+
+function enableEditButtons(isEnabled) {
     if (isEnabled) {
         playButton.disabled = false;
         resetButton.disabled = false;
@@ -273,6 +298,20 @@ function enableButtons(isEnabled) {
     }
 }
 
+function enableDownloadButton(isEnabled) {
+    if (isEnabled) {
+        saveImageButton.disabled = false;
+        saveTilemapButton.disabled = false;
+        saveImageButton.removeClass('grayed-out');
+        saveTilemapButton.removeClass('grayed-out');
+    } else {
+        saveImageButton.disabled = true;
+        saveTilemapButton.disabled = true;
+        saveImageButton.class('grayed-out');
+        saveTilemapButton.class('grayed-out');
+    }
+}
+
 
 function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
     // put a light gray background behind the tile variants
@@ -285,18 +324,18 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
     text("Tile Variants", cardX + 10, cardY + 20);
 
     // show the image associated with each tile variant, along with its index on the canvas
-    const newTileDisplaySize = 30;
+    const tileDisplaySize = 30;
     const margin = 10;
-    const spacing = newTileDisplaySize / 10 + 1;
+    const spacing = tileDisplaySize / 10 + 1;
     const rowSpacing = 15;
 
     // Calculate rowSize based on the cardWidth
-    const rowSize = Math.floor((cardWidth - 2 * margin) / (newTileDisplaySize + spacing));
+    const rowSize = Math.floor((cardWidth - 2 * margin) / (tileDisplaySize + spacing));
 
     let tileYPos = cardY + 30; // Adjust initial Y position to accommodate the title
     let tileXPos = cardX;
 
-    const maxRows = Math.floor((cardHeight - 2 * margin) / (newTileDisplaySize + spacing + rowSpacing));
+    const maxRows = Math.floor((cardHeight - 2 * margin) / (tileDisplaySize + spacing + rowSpacing));
 
     for (let i = 0; i < maxRows * rowSize && i < tileVariants.length; i++) {
         const tile = tileVariants[i];
@@ -306,19 +345,19 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
         const col = i % rowSize;
 
         // Calculate the x and y position based on the row and column
-        tileXPos = cardX + col * (newTileDisplaySize + spacing) + margin;
-        tileYPos = cardY + 30 + row * (newTileDisplaySize + spacing + rowSpacing);
+        tileXPos = cardX + col * (tileDisplaySize + spacing) + margin;
+        tileYPos = cardY + 30 + row * (tileDisplaySize + spacing + rowSpacing);
 
-        image(tile.img, tileXPos, tileYPos, newTileDisplaySize, newTileDisplaySize);
+        image(tile.img, tileXPos, tileYPos, tileDisplaySize, tileDisplaySize);
         fill(0);
         textSize(8);
-        text(i, tileXPos, tileYPos + newTileDisplaySize + 10);
+        text(i, tileXPos, tileYPos + tileDisplaySize + 10);
 
         // Draw black lines around the tile
         stroke(0);
         strokeWeight(1);
         noFill();
-        rect(tileXPos, tileYPos, newTileDisplaySize, newTileDisplaySize);
+        rect(tileXPos, tileYPos, tileDisplaySize, tileDisplaySize);
 
         // Reset fill, stroke, and strokeWeight for the next iteration
         fill(255);
@@ -377,6 +416,11 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
     const tileDisplaySizeY = (cardHeight - 2 * margin - (height - 1) * spacing) / height;
     const tileDisplaySize = Math.min(tileDisplaySizeX, tileDisplaySizeY);
 
+    // Draw a light gray background behind the input grid
+    fill(230);
+    noStroke();
+    rect(cardX, cardY, cardWidth, cardHeight, 2);
+
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             let cell = outputGrid[y][x];
@@ -386,13 +430,16 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
                 let index = cell.options[0]; // only one option when collapsed
                 image(tileVariants[index].img, xPos, yPos, tileDisplaySize, tileDisplaySize);
             } else {
+                // Draw black lines around the tile
+                stroke(0);
+                strokeWeight(1);
                 noFill();
-                stroke(51);
                 rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
 
                 // Draw the entropy value in the center of the cell
                 fill(0);
                 textSize(10);
+                strokeWeight(0);
                 textAlign(CENTER, CENTER);
                 text(cell.calculateEntropy(), xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
             }
