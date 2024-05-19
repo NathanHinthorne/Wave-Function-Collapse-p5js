@@ -16,12 +16,13 @@ let inputImage = null;
 
 // Flags to keep track of the state of the program
 let imageIsAnalyzed = false;
-let isPlaying = false;
-let outputIsPrepared = false;
+let outputIsInitialized = false;
+let outputIsGenerating = false;
+let outputIsComplete = false;
 
 
 function preload() {
-  inputImage = loadImage('sample_input/demo2.png');
+  inputImage = loadImage('sample_input/grass_with_flowers.png');
 }
 
 function setup() {
@@ -38,19 +39,21 @@ function draw() {
   displayInputGrid(10, 10, INPUT_IMAGE_DISPLAY_SIZE, INPUT_IMAGE_DISPLAY_SIZE);
 
   if (imageIsAnalyzed) {
-    displayTileVariants(450, 500, 500, 180);
+    displayTileVariants(469, 500, 570, 180);
   }
 
-  if (isPlaying) {
-    // populateOutputGrid();
+  if (outputIsInitialized) {
+    displayOutputGrid(1048, 10, OUTPUT_IMAGE_DISPLAY_SIZE, OUTPUT_IMAGE_DISPLAY_SIZE);
   }
 
-  if (outputIsPrepared) {
-    displayOutputGrid(1050, 10, OUTPUT_IMAGE_DISPLAY_SIZE, OUTPUT_IMAGE_DISPLAY_SIZE);
+  if (outputIsGenerating) {
+    populateOutputGrid();
   }
 
+  if (outputIsComplete) {
+    enableDownloadButtons(true);
+  }
 }
-
 
 
 /**
@@ -172,22 +175,46 @@ function startOver() {
   for (let y = 0; y < dim; y++) { //TODO change this when dims are not equal (not a square grid)
     outputGrid[y] = [];
     for (let x = 0; x < dim; x++) {
-      outputGrid[y][x] = new Cell(tileVariants);
+      // pass in the indices of the tile variants
+      const tileIndices = tileVariants.map(tile => tile.index);
+      outputGrid[y][x] = new Cell(tileIndices);
     }
   }
 
-  outputIsPrepared = true;
+  outputIsInitialized = true;
 }
 
 
 function populateOutputGrid() {
+
   // 1.  Create a list of cells that have not yet been collapsed.
-  const uncollapsedCells = outputGrid.flat().filter(cell => !cell.collapsed);
+  let uncollapsedCells = outputGrid.flat().filter(cell => !cell.collapsed);
+
+  if (uncollapsedCells.length == 0) {
+    console.log("finished generating output grid!");
+    outputIsGenerating = false;
+    outputIsComplete = true;
+    return;
+  }
+
+  // console.log("uncollapsedCells:", {...uncollapsedCells});
 
   // 2. From this list, select the cell with the lowest entropy.
   // The entropy of a cell is calculated in the calculateEntropy method in the Cell class.
-  const sortedCells = uncollapsedCells.sort((a, b) => a.calculateEntropy() - b.calculateEntropy());
-  const lowestEntropyCell = sortedCells[0];
+  uncollapsedCells = uncollapsedCells.sort((a, b) => a.calculateEntropy() - b.calculateEntropy());
+
+// console.log("Lowest entropy cell:", {...lowestEntropyCell});
+
+  let lowestEntropy = uncollapsedCells[0].calculateEntropy();
+  let stopIndex = 0;
+  for (let i = 1; i < uncollapsedCells.length; i++) {
+    if (uncollapsedCells[i].calculateEntropy() > lowestEntropy) {
+      stopIndex = i;
+      break;
+    }
+  }
+  if (stopIndex > 0) uncollapsedCells.splice(stopIndex); // cut out all cells with higher entropy
+  const lowestEntropyCell = random(uncollapsedCells); // pick a random cell that's tied for lowest entropy
 
   // 3. Collapse the selected cell. This is done by choosing a random tile index 
   // from its options field. Once a tile index is chosen, the cell's collapsed field 

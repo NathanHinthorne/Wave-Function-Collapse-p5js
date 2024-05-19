@@ -195,3 +195,13 @@ label {
     border-radius: 5px;
     cursor: pointer;
 }
+
+#getting-started {
+    font-family: Roboto, sans-serif;
+    overflow-y: auto;
+    /* border-radius: 5px;
+    padding: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    box-sizing: border-box;  */
+    /* background-color: lightgoldenrodyellow */
+}

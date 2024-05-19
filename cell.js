@@ -43,6 +43,6 @@ class Cell {
     const pick = random(this.options);
     this.options = [pick];
 
-    collapsed = true;
+    this.collapsed = true;
   }
 }

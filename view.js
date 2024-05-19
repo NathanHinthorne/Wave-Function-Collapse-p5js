@@ -119,10 +119,13 @@ function setupView() {
 
     // --- DOWNLOAD BUTTONS ---
 
+    const downloadX = 1150;
+    const downloadY = 510;
+
     // Create a download image button
     saveImageButton = createButton('Download Image <br>');
     saveImageButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
-    saveImageButton.position(1050, 600);
+    saveImageButton.position(downloadX, downloadY);
     saveImageButton.style('width', '120px');
     saveImageButton.style('font-size', '12px');
     // saveButton.hide();
@@ -131,12 +134,12 @@ function setupView() {
     // Create a download tilemap json button
     saveTilemapButton = createButton('Download Tilemap <br>');
     saveTilemapButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
-    saveTilemapButton.position(1200, 600);
+    saveTilemapButton.position(downloadX + 150, downloadY);
     saveTilemapButton.style('width', '120px');
     saveTilemapButton.style('font-size', '12px');
     // saveTilemapButton.hide();
     saveTilemapButton.mousePressed(handleTilemapDownload);
-    enableDownloadButton(false);
+    enableDownloadButtons(false);
 
 
     // Create GitHub link to the repo
@@ -146,8 +149,11 @@ function setupView() {
     githubLink.elt.innerHTML += '<i class="fab fa-github"></i>'; // Place icon inside the button
     githubLink.style('width', '145px');
 
-    // Create a help menu
+    // Create a collapsable help menu
     // displayHelpMenu(700, 10, 400, 400);
+
+    // Create a simple how to use section
+    displayGettingStarted(670, 50, 340, 410);
 }
 
 
@@ -159,12 +165,12 @@ function analyze() {
 
 function handlePlay() {
     startOver();
-    isPlaying = true;
+    outputIsGenerating = true;
     console.log("Generating output...");
 }
 
 function handlePause() {
-    isPlaying = false;
+    outputIsGenerating = false;
     console.log("Pausing output generation...");
 }
 
@@ -186,7 +192,7 @@ function updateTileSize() {
 
             parseImage();
             imageIsAnalyzed = false;
-            outputIsPrepared = false;
+            outputIsInitialized = false;
             enableEditButtons(false);
             redraw();
 
@@ -236,7 +242,7 @@ function updateInputFromSlider(input, slider) {
 function handleFile(file) {
     print("user submitted file: ", file.name);
     imageIsAnalyzed = false;
-    outputIsPrepared = false;
+    outputIsInitialized = false;
     enableEditButtons(false);
 
     // TODO check if file is an image
@@ -258,27 +264,88 @@ function handleFile(file) {
 function handleImageDownload() {
     //TODO save an image of the displayed output grid
 
-    const test = createGraphics(400, 400);
-    test.background(255);
-    test.fill(0);
-    test.textSize(32);
-    test.text('Hello', 10, 50);
-    test.save('test.png');
+    // const test = createGraphics(400, 400);
+    // test.background(255);
+    // test.fill(0);
+    // test.textSize(32);
+    // test.text('Hello', 10, 50);
+    // test.save('test.png');
+
+    // now save the real image by putting together all the tiles from the output grid into a single image, without the grid lines or spacing
+    const width = outputGrid[0].length * tilePixelSize;
+    const height = outputGrid.length * tilePixelSize;
+    let outputImage = createGraphics(width, height);
+
+    for (let y = 0; y < outputGrid.length; y++) {
+        for (let x = 0; x < outputGrid[y].length; x++) {
+            let cell = outputGrid[y][x];
+            const index = cell.options[0]; // only one option when collapsed
+            outputImage.image(tileVariants[index].img, x * tilePixelSize, y * tilePixelSize, tilePixelSize, tilePixelSize);
+        }
+    }
+
+    outputImage.save('output.png');
 }
 
 function handleTilemapDownload() {
     //TODO save each tile, which is cell.options[0], in the output grid to a json file
 
-    const test = {
-        "tilemap": [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8]
-        ]
-    };
+    // const test = {
+    //     "tilemap": [
+    //         [0, 1, 2],
+    //         [3, 4, 5],
+    //         [6, 7, 8]
+    //     ]
+    // };
+    // saveJSON(test, 'test.json');
 
-    saveJSON(test, 'test.json');
+    let tilemap = [];
+
+    for (let y = 0; y < outputGrid.length; y++) {
+        tilemap[y] = [];
+        for (let x = 0; x < outputGrid[y].length; x++) {
+            const cell = outputGrid[y][x];
+            const tileIndex = cell.options[0]; // only one option when collapsed
+            tilemap[y][x] = tileIndex;
+        }
+    }
+
+    saveTilemap(tilemap, 'tilemap.json');
 }
+
+function saveTilemap(tilemap, filename) {
+  let tilemapJSON = {
+    "tilemap": tilemap
+  };
+
+  let jsonStr = JSON.stringify(tilemapJSON, null, 0); // No indentation
+
+  // Add a newline and indentation after each inner list in the tilemap array
+  jsonStr = jsonStr.replace(/\],/g, '],\n\t\t');
+
+  // Add a newline and indentation after the opening bracket of the tilemap array
+  jsonStr = jsonStr.replace(/"tilemap": \[/, '"tilemap": [\n\t\t');
+
+  // Add a newline and indentation before the closing bracket of the tilemap array
+  jsonStr = jsonStr.replace(/\]\n\}/, '\n\t]\n}');
+
+  // Add a newline after the opening curly brace
+  jsonStr = jsonStr.replace(/\{/, '{\n');
+
+  // Add a newline before the closing curly brace
+  jsonStr = jsonStr.replace(/\}$/, '\n}');
+
+  let blob = new Blob([jsonStr], {type: "application/json"});
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement('a');
+  a.download = filename;
+  a.href = url;
+  a.click();
+}
+
+// Use the function like this:
+saveTilemap(tilemap, 'tilemap.json');
 
 function enableEditButtons(isEnabled) {
     if (isEnabled) {
@@ -298,7 +365,7 @@ function enableEditButtons(isEnabled) {
     }
 }
 
-function enableDownloadButton(isEnabled) {
+function enableDownloadButtons(isEnabled) {
     if (isEnabled) {
         saveImageButton.disabled = false;
         saveTilemapButton.disabled = false;
@@ -416,6 +483,8 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
     const tileDisplaySizeY = (cardHeight - 2 * margin - (height - 1) * spacing) / height;
     const tileDisplaySize = Math.min(tileDisplaySizeX, tileDisplaySizeY);
 
+    push();
+
     // Draw a light gray background behind the input grid
     fill(230);
     noStroke();
@@ -426,16 +495,18 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
             let cell = outputGrid[y][x];
             const xPos = cardX + x * (tileDisplaySize + spacing) + margin;
             const yPos = cardY + y * (tileDisplaySize + spacing) + margin;
+
+            // Draw black lines around the tile
+            stroke(0);
+            strokeWeight(1);
+            noFill();
+            rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+            
             if (cell.collapsed) {
+                // draw the tile image
                 let index = cell.options[0]; // only one option when collapsed
                 image(tileVariants[index].img, xPos, yPos, tileDisplaySize, tileDisplaySize);
             } else {
-                // Draw black lines around the tile
-                stroke(0);
-                strokeWeight(1);
-                noFill();
-                rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
-
                 // Draw the entropy value in the center of the cell
                 fill(0);
                 textSize(10);
@@ -445,6 +516,8 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
             }
         }
     }
+
+    pop();
 }
 
 function displayHelpMenu(cardX, cardY, cardWidth, cardHeight) {
@@ -484,4 +557,28 @@ function displayHelpMenu(cardX, cardY, cardWidth, cardHeight) {
             helpMenu.class('hide'); // Add 'hide' class to hide the menu
         }
     });
+}
+
+function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
+    // Create a card for the getting started section
+    const card = createDiv('');
+    card.position(cardX, cardY);
+    card.size(cardWidth, cardHeight);
+    card.id('getting-started');
+
+    // Create a title for the card
+    const title = createP('How to Use');
+    title.style('font-size', '24px');
+    title.style('font-weight', 'bold');
+    title.parent(card);
+
+    // Create a paragraph for the card
+    const helpText = createP(
+        '1. Upload an image composed of tiles (similar to the example below). <br><br>' +
+        '2. Set the tile size. <br><br>' +
+        '3. Click "Analyze" to identify tile variants and the patterns between them. <br><br>' +
+        '4. Set the dimensions of the output grid. <br><br>' +
+        '5. Click "Play" to generate the tilemap. <br><br>' +
+        '6. Click "Download Image" to save the output image or "Download Tilemap" to save the tilemap as a JSON file.');
+    helpText.parent(card);
 }
