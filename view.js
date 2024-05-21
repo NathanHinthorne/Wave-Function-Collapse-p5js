@@ -20,15 +20,17 @@ function setupView() {
 
     // --- INPUT IMAGE PARAMETERS ---
 
+    const inputParamsStartY = 510;
+
     // Create file input
     fileInput = createFileInput(handleFile);
-    fileInput.position(100, 480);
+    fileInput.position(100, inputParamsStartY);
     fileInput.style('display', 'block'); 
     fileInput.attribute('accept', '.png');
 
     // Create tile pixel size input box
     tileSizeInput = createInput('');
-    tileSizeInput.position(185, 540);
+    tileSizeInput.position(185, inputParamsStartY + 60);
     tileSizeInput.style('width', '100px');
     tileSizeInput.input(() => {
         updateSliderFromInput(tileSizeSlider, tileSizeInput);
@@ -37,11 +39,11 @@ function setupView() {
     tileSizeInput.changed(validateInput)
     tileSizeInput.attribute('placeholder', 'Tile Size'); // Set placeholder text
     const px = createP('px');
-    px.position(290, 545);
+    px.position(290, inputParamsStartY + 65);
 
     // Create tile pixel size slider
     tileSizeSlider = createSlider(0, 100, 0);
-    tileSizeSlider.position(160, 600);
+    tileSizeSlider.position(160, inputParamsStartY + 120);
     tileSizeSlider.style('width', '145px');
     tileSizeSlider.input(() => {
         updateInputFromSlider(tileSizeInput, tileSizeSlider);
@@ -262,16 +264,6 @@ function handleFile(file) {
 }
 
 function handleImageDownload() {
-    //TODO save an image of the displayed output grid
-
-    // const test = createGraphics(400, 400);
-    // test.background(255);
-    // test.fill(0);
-    // test.textSize(32);
-    // test.text('Hello', 10, 50);
-    // test.save('test.png');
-
-    // now save the real image by putting together all the tiles from the output grid into a single image, without the grid lines or spacing
     const width = outputGrid[0].length * tilePixelSize;
     const height = outputGrid.length * tilePixelSize;
     let outputImage = createGraphics(width, height);
@@ -288,17 +280,6 @@ function handleImageDownload() {
 }
 
 function handleTilemapDownload() {
-    //TODO save each tile, which is cell.options[0], in the output grid to a json file
-
-    // const test = {
-    //     "tilemap": [
-    //         [0, 1, 2],
-    //         [3, 4, 5],
-    //         [6, 7, 8]
-    //     ]
-    // };
-    // saveJSON(test, 'test.json');
-
     let tilemap = [];
 
     for (let y = 0; y < outputGrid.length; y++) {
@@ -343,9 +324,6 @@ function saveTilemap(tilemap, filename) {
   a.href = url;
   a.click();
 }
-
-// Use the function like this:
-saveTilemap(tilemap, 'tilemap.json');
 
 function enableEditButtons(isEnabled) {
     if (isEnabled) {
@@ -507,12 +485,20 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
                 let index = cell.options[0]; // only one option when collapsed
                 image(tileVariants[index].img, xPos, yPos, tileDisplaySize, tileDisplaySize);
             } else {
+                let entropy = cell.calculateEntropy();
+                let maxEntropy = cell.maxEntropy;
+                let greenShade = map(entropy, 0, maxEntropy, 0, 255);
+                
+                // Draw a rectangle with a shade of green based on the entropy value
+                fill(greenShade, 255, greenShade);
+                rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+                
                 // Draw the entropy value in the center of the cell
                 fill(0);
                 textSize(10);
                 strokeWeight(0);
                 textAlign(CENTER, CENTER);
-                text(cell.calculateEntropy(), xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
+                text(entropy, xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
             }
         }
     }

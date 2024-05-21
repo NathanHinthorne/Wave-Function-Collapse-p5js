@@ -1,11 +1,19 @@
 class Cell {
 
-  constructor(tileIndices) {
+  constructor(tileIndices, x, y) {
     /** Whether or not the cell has collapsed into a tile */
     this.collapsed = false;
 
     /** The available tiles to choose from */
     this.options = tileIndices; // start off with every tile as an option
+
+    this.maxEntropy = tileIndices.length;
+
+    /** This cell's x position in the output grid */
+    this.x  = x;
+
+    /** This cell's y position in the output grid */
+    this.y = y
   }
 
   calculateEntropy() {
@@ -35,7 +43,7 @@ class Cell {
     }
 
     if (this.options.length === 0) {
-      return new Error('Tried to collapse, but no tile options were available')
+      throw new Error('Tried to collapse, but no tile options were available')
     }
 
     // TODO let the frequencies play a role in tile selection
@@ -44,5 +52,7 @@ class Cell {
     this.options = [pick];
 
     this.collapsed = true;
+
+    return pick;
   }
 }

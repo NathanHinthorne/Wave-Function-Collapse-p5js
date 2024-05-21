@@ -29,7 +29,7 @@ The algorithm works in the following way:
 - [x] Create frequency hints from connected tiles
 - [ ] Let frequency hints play a role in tile selection
 - [x] Create a simple GUI for the user to adjust algorithm parameters
-- [ ] Experiment with different implementations of WFC (freq hints vs no freq hints, memoization for entropies vs re-calculation of all entropies, etc.). 
+- [ ] Experiment with different implementations of WFC (freq hints vs no freq hints, memoization for entropies vs re-calculation of all entropies, etc.).
 - [ ] Gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
 - [ ] Allow the user to upload the tile variant images in ADDITION to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development.
 
