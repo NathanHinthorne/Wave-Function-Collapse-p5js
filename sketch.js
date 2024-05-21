@@ -22,7 +22,7 @@ let outputIsComplete = false;
 
 
 function preload() {
-  inputImage = loadImage('sample_input/grass_with_flowers.png');
+  inputImage = loadImage('sample_input/demo3.png');
 }
 
 function setup() {
@@ -48,10 +48,6 @@ function draw() {
 
   if (outputIsGenerating) {
     populateOutputGrid();
-  }
-
-  if (outputIsComplete) {
-    enableDownloadButtons(true);
   }
 }
 
@@ -111,7 +107,7 @@ function findTileVariants() {
             tile.index = variant.index;
             break;
           }
-        }
+        } 
       }
     }
   }
@@ -214,6 +210,7 @@ function populateOutputGrid() {
     console.log("finished generating output grid!");
     outputIsGenerating = false;
     outputIsComplete = true;
+    enableDownloadButtons(true);
     return;
   }
 

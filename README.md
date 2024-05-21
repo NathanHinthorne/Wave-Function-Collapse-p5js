@@ -35,7 +35,7 @@ The algorithm works in the following way:
 
 ## How to use
 
-Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/) to see the algorithm in action.
+Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/) to see the algorithm in action and generate your own images!
 
 ## Acknowledgements
 

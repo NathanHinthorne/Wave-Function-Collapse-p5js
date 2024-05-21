@@ -7,13 +7,13 @@ class Cell {
     /** The available tiles to choose from */
     this.options = tileIndices; // start off with every tile as an option
 
-    this.maxEntropy = tileIndices.length;
-
     /** This cell's x position in the output grid */
     this.x  = x;
-
+    
     /** This cell's y position in the output grid */
     this.y = y
+    
+    this.maxEntropy = tileIndices.length;
   }
 
   calculateEntropy() {
@@ -52,7 +52,5 @@ class Cell {
     this.options = [pick];
 
     this.collapsed = true;
-
-    return pick;
   }
 }

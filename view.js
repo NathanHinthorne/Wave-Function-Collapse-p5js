@@ -166,18 +166,25 @@ function analyze() {
 }
 
 function handlePlay() {
-    startOver();
+    if (outputIsComplete || outputGrid.length == 0) { // if grid output grid is empty or completely filled
+        startOver();
+        outputIsComplete = false;
+        enableDownloadButtons(false);
+    }
+
+    // simply resume the output generation
     outputIsGenerating = true;
-    console.log("Generating output...");
 }
 
 function handlePause() {
     outputIsGenerating = false;
-    console.log("Pausing output generation...");
 }
 
 function handleReset() {
     startOver();
+    outputIsGenerating = false;
+    outputIsComplete = false;
+    enableDownloadButtons(false);
 }
 
 function updateDim() {
