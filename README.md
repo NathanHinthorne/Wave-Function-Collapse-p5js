@@ -22,6 +22,8 @@ The algorithm works in the following way:
 
     a. The propagation of tiles is done by choosing the cell with the lowest entropy (the cell with the fewest tile options), then collapsing it into a single tile. This process is repeated until the grid is filled.
 
+For a more detailed explanation how the algorithm works and how it produces the desired results, see the [paper](https://nothinHereYet) I wrote on the subject.
+
 ## Plans
 
 - [x] Parse input image to collect unique tiles
@@ -31,7 +33,10 @@ The algorithm works in the following way:
 - [x] Create a simple GUI for the user to adjust algorithm parameters
 - [ ] Experiment with different implementations of WFC (freq hints vs no freq hints, memoization for entropies vs re-calculation of all entropies, etc.).
 - [ ] Gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
-- [ ] Allow the user to upload the tile variant images in ADDITION to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development.
+- [ ] Allow the user to upload the tile variant images in *addition* to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development.
+- Tweak algorithm propagation rules to achieve better output:
+  - [x] For edge tiles analyzed in the input grid, because some of their neighbors don't exist, let the **most common** tile found in the input grid be the only tile that can be placed next to the edge tile. Best case scenario, the most common tile is "air" or "empty" so it fits well.
+  
 
 ## How to use
 
