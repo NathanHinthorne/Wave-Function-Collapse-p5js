@@ -8,12 +8,14 @@ class Cell {
     this.options = tileIndices; // start off with every tile as an option
 
     /** This cell's x position in the output grid */
-    this.x  = x;
+    this.x = x;
     
     /** This cell's y position in the output grid */
-    this.y = y
+    this.y = y;
     
     this.maxEntropy = tileIndices.length;
+
+    this.totalFrequencyInGrid = 0;
   }
 
   calculateEntropy() {

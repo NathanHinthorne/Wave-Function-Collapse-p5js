@@ -1,5 +1,7 @@
-let analyzeButton, playButton, pauseButton, resetButton, dimInput, fileInput, tileSizeInput,
-    tileSizeSlider, dimSlider, loadingBar, saveImageButton, saveTilemapButton, githubLink, helpButton, helpMenu;
+let analyzeButton, playButton, pauseButton, resetButton, 
+    dimInput, fileInput, tileSizeInput, tileSizeSlider, 
+    dimSlider, loadingBar, saveImageButton, saveTilemapButton, 
+    githubLink, helpButton, helpMenu, oscillator, envelope, frameRateSlider;
 
 
 function setupView() {
@@ -16,6 +18,23 @@ function setupView() {
     exampleText.style('color', 'rgba(0,0,0,0.3)');
     exampleText.position(100, 100);
     exampleText.id('example-text');
+
+
+    // --- SFX ---
+    oscillator = new p5.Oscillator('sine');
+    envelope = new p5.Envelope(); // Create a new envelope
+    const attackTime = 0.1;
+    const decayTime = 0.1;
+    const susPercent = 0.2;
+    const releaseTime = 0.5;
+    const attackLevel = 1.0;
+    const releaseLevel = 0;
+
+    envelope.setADSR(attackTime, decayTime, susPercent, releaseTime);
+    envelope.setRange(attackLevel, releaseLevel);
+
+    oscillator.amp(envelope);  // Use the envelope to control the amplitude
+
 
 
     // --- INPUT IMAGE PARAMETERS ---
@@ -117,6 +136,18 @@ function setupView() {
     // loadingBar.class('loading-bar');
 
 
+    // --- FRAME RATE SLIDER ---
+    const frameRateX = 740;
+    const frameRateY = 460;
+    frameRateSlider = createSlider(1, 60, 30);
+    frameRateSlider.position(frameRateX, frameRateY);
+    frameRateSlider.style('width', '200px');
+    frameRateSlider.input(() => {
+        frameRate(frameRateSlider.value());
+    });
+    // put text next to the slider
+    const frameRateText = createP('Generation Speed');
+    frameRateText.position(frameRateX + 50, frameRateY - 40);
 
 
     // --- DOWNLOAD BUTTONS ---
@@ -511,6 +542,13 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
     }
 
     pop();
+}
+
+function playBeepSFX(freq, duration) {
+    console.log('Playing beep at frequency: ' + freq);
+    oscillator.freq(freq);
+    oscillator.start();
+    envelope.play(oscillator, 0, duration);
 }
 
 function displayHelpMenu(cardX, cardY, cardWidth, cardHeight) {

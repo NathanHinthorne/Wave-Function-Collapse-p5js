@@ -28,6 +28,8 @@ function preload() {
 function setup() {
   parseImage(); // parse the example image
   setupView();
+
+  frameRate(30);
 }
 
 function draw() {
@@ -72,6 +74,7 @@ function parseImage() {
   }
 }
 
+
 function analyzeTiles() {
   findTileVariants();
   findNeighbors();
@@ -99,6 +102,7 @@ function findTileVariants() {
         scannedTiles.add(tile.hash);
         tileVariants.push(tile);
         tile.index = tileVariants.length - 1;
+        tile.totalFrequencyInGrid = 1;
 
       } else {
         // If this type of tile has been seen, find the variant and set the index
@@ -108,6 +112,7 @@ function findTileVariants() {
             break;
           }
         } 
+        tile.totalFrequencyInGrid += 1;
       }
     }
   }
@@ -120,15 +125,12 @@ function findNeighbors() {
   const height = inputGrid.length;
   const width = inputGrid[0].length;
 
-  // initialize adjacency rules and frequency hints
-  // for (let tile of tileVariants) {
-  //   for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
-  //     tile.up.set(otherTileIndex, 0);
-  //     tile.right.set(otherTileIndex, 0);
-  //     tile.down.set(otherTileIndex, 0);
-  //     tile.left.set(otherTileIndex, 0);
-  //   }
-  // }
+  const mostCommonTile = tileVariants.reduce((mostCommonTile, tile) => {
+    if (tile.totalFrequencyInGrid > mostCommonTile.totalFrequencyInGrid) {
+      return tile;
+    }
+    return mostCommonTile;
+  });
 
   // create adjacency rules and frequency hints
   for (let y = 0; y < height; y++) {
@@ -144,7 +146,17 @@ function findNeighbors() {
           const upNeighborFrequency = tileVariant.up.get(upNeighbor.index);
           tileVariant.up.set(upNeighbor.index, upNeighborFrequency + 1);
         }
+      } 
+      else {
+        // Approach 1: there's no tile above us, so we can be adjacent to any tile
+        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
+        //   tileVariant.up.set(otherTileIndex, 1);
+        // }
+
+        // Approach 2: there's no tile above us, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
+        tileVariant.up.set(mostCommonTile.index, 1);
       }
+
       if (x < width - 1) { // there's a tile to our right
         const rightNeighbor = inputGrid[y][x + 1];
         if (!tileVariant.right.has(rightNeighbor.index)) {
@@ -153,7 +165,17 @@ function findNeighbors() {
           const rightNeighborFrequency = tileVariant.right.get(rightNeighbor.index);
           tileVariant.right.set(rightNeighbor.index, rightNeighborFrequency + 1);
         }
+      } 
+      else {
+        // Approach 1: there's no tile to our right, so we can be adjacent to any tile
+        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
+        //   tileVariant.right.set(otherTileIndex, 1);
+        // }
+
+        // Approach 2: there's no tile to our right, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
+        tileVariant.right.set(mostCommonTile.index, 1);
       }
+
       if (y < height - 1) { // there's a tile below us
         const downNeighbor = inputGrid[y + 1][x];
         if (!tileVariant.down.has(downNeighbor.index)) {
@@ -162,7 +184,17 @@ function findNeighbors() {
           const downNeighborFrequency = tileVariant.down.get(downNeighbor.index);
           tileVariant.down.set(downNeighbor.index, downNeighborFrequency + 1);
         }
+      } 
+      else {
+        // Approach 1: there's no tile below us, so we can be adjacent to any tile
+        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
+        //   tileVariant.down.set(otherTileIndex, 1);
+        // }
+
+        // Approach 2: there's no tile below us, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
+        tileVariant.down.set(mostCommonTile.index, 1);
       }
+
       if (x > 0) { // there's a tile to our left
         const leftNeighbor = inputGrid[y][x - 1];
         if (!tileVariant.left.has(leftNeighbor.index)) {
@@ -171,6 +203,15 @@ function findNeighbors() {
           const leftNeighborFrequency = tileVariant.left.get(leftNeighbor.index);
           tileVariant.left.set(leftNeighbor.index, leftNeighborFrequency + 1);
         }
+      } 
+      else {
+        // Approach 1: there's no tile to our left, so we can be adjacent to any tile
+        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
+        //   tileVariant.left.set(otherTileIndex, 1);
+        // }
+
+        // Approach 2: there's no tile to our left, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
+        tileVariant.left.set(mostCommonTile.index, 1);
       }
     }
   }
@@ -207,14 +248,18 @@ function populateOutputGrid() {
   let uncollapsedCells = outputGrid.flat().filter(cell => !cell.collapsed);
 
   if (uncollapsedCells.length == 0) {
-    console.log("finished generating output grid!");
     outputIsGenerating = false;
     outputIsComplete = true;
     enableDownloadButtons(true);
     return;
   }
 
-  // console.log("uncollapsedCells:", {...uncollapsedCells});
+  // if (frameCount % 2 === 0) {
+  //   // Play sine wave sfx higher in pitch as the grid gets closer to completion
+  //   const freq = map(uncollapsedCells.length, 0, dim * dim, 2000, 500);
+  //   const duration = 0.1;
+  //   playBeepSFX(freq, duration);
+  // }
 
 
 
