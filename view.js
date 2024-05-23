@@ -21,19 +21,19 @@ function setupView() {
 
 
     // --- SFX ---
-    oscillator = new p5.Oscillator('sine');
-    envelope = new p5.Envelope(); // Create a new envelope
-    const attackTime = 0.1;
-    const decayTime = 0.1;
-    const susPercent = 0.2;
-    const releaseTime = 0.5;
-    const attackLevel = 1.0;
-    const releaseLevel = 0;
+    // oscillator = new p5.Oscillator('sine');
+    // envelope = new p5.Envelope(); // Create a new envelope
+    // const attackTime = 0.1;
+    // const decayTime = 0.1;
+    // const susPercent = 0.2;
+    // const releaseTime = 0.5;
+    // const attackLevel = 1.0;
+    // const releaseLevel = 0;
 
-    envelope.setADSR(attackTime, decayTime, susPercent, releaseTime);
-    envelope.setRange(attackLevel, releaseLevel);
+    // envelope.setADSR(attackTime, decayTime, susPercent, releaseTime);
+    // envelope.setRange(attackLevel, releaseLevel);
 
-    oscillator.amp(envelope);  // Use the envelope to control the amplitude
+    // oscillator.amp(envelope);  // Use the envelope to control the amplitude
 
 
 
@@ -88,7 +88,7 @@ function setupView() {
     playButton.position(buttonX, firstButton + 60);
     playButton.mousePressed(handlePlay);
     playButton.elt.innerHTML = '<i class="fas fa-play"></i>'; // Place icon inside the button
-    playButton.disabled = true; // Disable the button until the image is analyzed
+    playButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     playButton.class('grayed-out');
 
     // Create pause button
@@ -96,7 +96,7 @@ function setupView() {
     pauseButton.position(buttonX, firstButton + 120);
     pauseButton.mousePressed(handlePause);   
     pauseButton.elt.innerHTML = '<i class="fas fa-pause"></i>'; // Place icon inside the button
-    pauseButton.disabled = true; // Disable the button until the image is analyzed
+    pauseButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     pauseButton.class('grayed-out');
     
     // Create reset button
@@ -104,7 +104,7 @@ function setupView() {
     resetButton.position(buttonX, firstButton + 180);
     resetButton.mousePressed(handleReset);  
     resetButton.elt.innerHTML = '<i class="fas fa-undo"></i>'; // Place icon inside the button
-    resetButton.disabled = true; // Disable the button until the image is analyzed
+    resetButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     resetButton.class('grayed-out');
 
     // Create dimension input box
@@ -365,16 +365,16 @@ function saveTilemap(tilemap, filename) {
 
 function enableEditButtons(isEnabled) {
     if (isEnabled) {
-        playButton.disabled = false;
-        resetButton.disabled = false;
-        pauseButton.disabled = false;
+        playButton.removeAttribute('disabled');
+        resetButton.removeAttribute('disabled');
+        pauseButton.removeAttribute('disabled');
         playButton.removeClass('grayed-out');
         pauseButton.removeClass('grayed-out');
         resetButton.removeClass('grayed-out');
     } else {
-        playButton.disabled = true;
-        resetButton.disabled = true;
-        pauseButton.disabled = true;
+        playButton.attribute('disabled', '');
+        resetButton.attribute('disabled', '');
+        pauseButton.attribute('disabled', '');
         playButton.class('grayed-out');
         pauseButton.class('grayed-out');
         resetButton.class('grayed-out');
@@ -383,13 +383,13 @@ function enableEditButtons(isEnabled) {
 
 function enableDownloadButtons(isEnabled) {
     if (isEnabled) {
-        saveImageButton.disabled = false;
-        saveTilemapButton.disabled = false;
+        saveImageButton.removeAttribute('disabled');
+        saveTilemapButton.removeAttribute('disabled');
         saveImageButton.removeClass('grayed-out');
         saveTilemapButton.removeClass('grayed-out');
     } else {
-        saveImageButton.disabled = true;
-        saveTilemapButton.disabled = true;
+        saveImageButton.attribute('disabled', '');
+        saveTilemapButton.attribute('disabled', '');
         saveImageButton.class('grayed-out');
         saveTilemapButton.class('grayed-out');
     }
@@ -552,45 +552,6 @@ function playBeepSFX(freq, duration) {
     oscillator.freq(freq);
     oscillator.start();
     envelope.play(oscillator, 0, duration);
-}
-
-function displayHelpMenu(cardX, cardY, cardWidth, cardHeight) {
-
-    // Create a dropdown menu for the help menu that the user can click on
-    helpMenu = createDiv('');
-    helpMenu.id('help-menu'); // Assign an ID for CSS styling
-    helpMenu.position(cardX, cardY); // Position the menu
-    helpMenu.size(cardWidth, cardHeight); // Set the size of the menu
-
-    // Create a title for the help menu
-    const title = createP('Help');
-    title.parent(helpMenu);
-
-    // Create a paragraph for the help menu
-    const helpText = createP(
-        'This tool is used to generate images/tilemaps ' +
-        'using patterns identified from an input image. ' +
-        'To use, first upload an image composed of tiles ' +
-        '(similar to the example below). Second, set the ' +
-        'tile size. Third, click "Analyze" to generate ' +
-        'tile variants. Finally, click "Play" to generate ' +
-        'the tilemap.');
-    helpText.parent(helpMenu);
-
-    helpMenu.class('hide'); // Initially hide the menu
-
-    // create a help button that will display the help menu when clicked
-    helpButton = createButton('');
-    helpButton.elt.innerHTML = '<i class="fas fa-question"></i>'; // Place icon inside the button
-    helpButton.position(cardX + cardWidth + 10, cardY);
-    helpButton.class('yellow-button')
-    helpButton.mousePressed(() => {
-        if (helpMenu.class().includes('hide')) {
-            helpMenu.removeClass('hide'); // Remove 'hide' class to show the menu
-        } else {
-            helpMenu.class('hide'); // Add 'hide' class to hide the menu
-        }
-    });
 }
 
 function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
