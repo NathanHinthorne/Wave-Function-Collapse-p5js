@@ -4,18 +4,20 @@ class Tile {
     this.index = null;
     this.hash = null;
 
-    // Map of tile indices to their frequency,
+    // Maps of tile indices to their frequency,
     // This rolls adjacency rules and frequency hints into one
     
-    // Key: Tile Index, Value: Number of times this tile was found connected to given tile index
+    /** A Map where the keys are the indices of available tiles to appear above this one, and the values are their corresponding frequencies */
     this.up = new Map();
-    this.right = new Map();
-    this.down = new Map();
-    this.left = new Map();
-  }
 
-  match(otherTile) {
-    return this.hash == otherTile.hash;
+    /** A Map where the keys are the indices of available tiles to appear to the right of this one, and the values are their corresponding frequencies */
+    this.right = new Map();
+
+    /** A Map where the keys are the indices of available tiles to appear below this one, and the values are their corresponding frequencies */
+    this.down = new Map();
+
+    /** A Map where the keys are the indices of available tiles to appear to the left of this one, and the values are their corresponding frequencies */
+    this.left = new Map();
   }
 
   createHash() {

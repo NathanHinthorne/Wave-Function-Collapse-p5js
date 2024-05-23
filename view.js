@@ -39,7 +39,7 @@ function setupView() {
 
     // --- INPUT IMAGE PARAMETERS ---
 
-    const inputParamsStartY = 510;
+    const inputParamsStartY = 480;
 
     // Create file input
     fileInput = createFileInput(handleFile);
@@ -309,7 +309,7 @@ function handleImageDownload() {
     for (let y = 0; y < outputGrid.length; y++) {
         for (let x = 0; x < outputGrid[y].length; x++) {
             let cell = outputGrid[y][x];
-            const index = cell.options[0]; // only one option when collapsed
+            const index = cell.selectedTile;
             outputImage.image(tileVariants[index].img, x * tilePixelSize, y * tilePixelSize, tilePixelSize, tilePixelSize);
         }
     }
@@ -324,7 +324,7 @@ function handleTilemapDownload() {
         tilemap[y] = [];
         for (let x = 0; x < outputGrid[y].length; x++) {
             const cell = outputGrid[y][x];
-            const tileIndex = cell.options[0]; // only one option when collapsed
+            const tileIndex = cell.selectedTile;
             tilemap[y][x] = tileIndex;
         }
     }
@@ -520,7 +520,7 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
             
             if (cell.collapsed) {
                 // draw the tile image
-                let index = cell.options[0]; // only one option when collapsed
+                let index = cell.selectedTile;
                 image(tileVariants[index].img, xPos, yPos, tileDisplaySize, tileDisplaySize);
             } else {
                 let entropy = cell.calculateEntropy();
@@ -529,6 +529,9 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
                 
                 // Draw a rectangle with a shade of green based on the entropy value
                 fill(greenShade, 255, greenShade);
+                if (entropy === 0) {
+                    fill(255, 0, 0);
+                }
                 rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
                 
                 // Draw the entropy value in the center of the cell
@@ -613,3 +616,54 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
         '6. Click "Download Image" to save the output image or "Download Tilemap" to save the tilemap as a JSON file.');
     helpText.parent(card);
 }
+
+// function mouseClicked() {
+
+//     // Calculate the cell under the mouse
+//     const x = Math.floor((mouseX - OUTPUT_IMAGE_DISPLAY_SIZE) / tilePixelSize);
+//     const y = Math.floor((mouseY - OUTPUT_IMAGE_DISPLAY_SIZE) / tilePixelSize);
+
+//     console.log('Mouse clicked at: ' + x + ', ' + y);
+
+//     const gridWidth = outputGrid[0].length;
+//     const gridHeight = outputGrid.length;
+    
+//     // Check if the cell is within the grid and not collapsed
+//     if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
+//         const cell = outputGrid[y][x];
+//         if (!cell.collapsed) {
+//             // Show the popup for this cell
+//             drawPopup(mouseX, mouseY, cell);
+//             return;
+//         }
+//     }
+    
+//     // Hide the popup if it's not over a valid cell
+//     if (popupDiv) {
+//         popupDiv.remove();
+//         popupDiv = null;
+//     }
+// }
+
+
+// function drawPopup(x, y, cell) {
+//     // Create a div for the popup
+//     if (popupDiv) {
+//         popupDiv.remove();
+//     }
+//     popupDiv = createDiv('');
+//     popupDiv.position(x, y);
+//     popupDiv.id('tile-popup');
+//     popupDiv.mouseOut(() => {
+//         popupDiv.remove();
+//         popupDiv = null;
+//     });
+
+//     // Draw the tile images for the cell's options
+//     for (let i = 0; i < cell.options.length; i++) {
+//         const tileIndex = cell.options[i];
+//         const tileImage = tileVariants[tileIndex].img;
+//         const imgElem = createImg(tileImage.src);
+//         imgElem.parent(popupDiv);
+//     }
+// }

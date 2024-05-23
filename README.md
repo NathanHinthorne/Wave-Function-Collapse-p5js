@@ -26,17 +26,26 @@ For a more detailed explanation how the algorithm works and how it produces the 
 
 ## Plans
 
-- [x] Parse input image to collect unique tiles
-- [x] Create adjacency rules from connected tiles
-- [x] Create frequency hints from connected tiles
-- [ ] Let frequency hints play a role in tile selection
-- [x] Create a simple GUI for the user to adjust algorithm parameters
-- [ ] Experiment with different implementations of WFC (freq hints vs no freq hints, memoization for entropies vs re-calculation of all entropies, etc.).
-- [ ] Gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
-- [ ] Allow the user to upload the tile variant images in *addition* to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development.
+NOTE: Anything preceeded by "???" is a feature that I'm not sure if I want to implement yet. I'm still thinking about it.
+
+- Finish a basic, custom implementation of WFC:
+  - [x] Parse input image to collect unique tiles
+  - [x] Create adjacency rules from connected tiles
+  - [x] Create frequency hints from connected tiles
+  - [x] Let adjacency rules play a role in tile selection
+  - [x] Let frequency hints play a role in tile selection
+  - [x] Create a simple GUI for the user to adjust algorithm parameters
+
+- Perform analysis on different implementations of WFC to see how they affect the output:
+  - [ ] Setup a way to gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
+  - [ ] Test frequency hints vs no frequency hints.
+  - [ ] Test memoization for entropies vs re-calculation of all entropies.
+
 - Tweak algorithm propagation rules to achieve better output:
-  - [x] For edge tiles analyzed in the input grid, because some of their neighbors don't exist, let the **most common** tile found in the input grid be the only tile that can be placed next to the edge tile. Best case scenario, the most common tile is "air" or "empty" so it fits well.
-  
+  - [x] For edge tiles analyzed in the input grid, because some of their neighbors don't exist, let the **most common** tile found in the input grid be the only tile that can be placed next to the edge tile. Best case scenario, the most common tile is "air" or "empty" so it will probably fit well.
+  - [x] Implement a "backtracking" feature that allows the algorithm to backtrack and try a different tile if it gets stuck (i.e. no tiles can be placed in a cell). Utilize use a stack of previous states to accomplish this.
+  - [ ] Implement Shannon Entropy as a more accurate form of entropy. Shannon Entropy accounts for weighted probabilities of tiles.
+- [ ] ??? Allow the user to upload the tile variant images in *addition* to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development
 
 ## How to use
 

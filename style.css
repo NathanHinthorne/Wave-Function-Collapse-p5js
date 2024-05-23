@@ -204,3 +204,8 @@ label {
     box-sizing: border-box;  */
     /* background-color: lightgoldenrodyellow */
 }
+
+#tile-popup {
+    background-color: white;
+    padding: 10px;
+}

@@ -7,6 +7,15 @@ let inputGrid = [];
 /** 2D Array. Contains cells that get collapsed into tiles */
 let outputGrid = [];
 
+/** A stack of previous output grid states to allow for backtracking */
+let gridStates = [];
+
+/** A stack of cell collapsing decisions made by the program to allow for backtracking */
+let decisions = [];
+
+/** The number of times the program has backtracked */
+let backtrackAttempts = 0;
+
 let dim = 10;
 let tilePixelSize = 22; 
 const INPUT_IMAGE_DISPLAY_SIZE = 450;
@@ -38,14 +47,14 @@ function draw() {
   background(255);
   // clear(); // use this instead if you want to make a cool css background in style.css
 
-  displayInputGrid(10, 40, INPUT_IMAGE_DISPLAY_SIZE, INPUT_IMAGE_DISPLAY_SIZE);
+  displayInputGrid(10, 10, INPUT_IMAGE_DISPLAY_SIZE, INPUT_IMAGE_DISPLAY_SIZE);
 
   if (imageIsAnalyzed) {
     displayTileVariants(469, 500, 570, 180);
   }
 
   if (outputIsInitialized) {
-    displayOutputGrid(1048, 40, OUTPUT_IMAGE_DISPLAY_SIZE, OUTPUT_IMAGE_DISPLAY_SIZE);
+    displayOutputGrid(1048, 10, OUTPUT_IMAGE_DISPLAY_SIZE, OUTPUT_IMAGE_DISPLAY_SIZE);
   }
 
   if (outputIsGenerating) {
@@ -240,6 +249,12 @@ function startOver() {
 
 function populateOutputGrid() {
 
+  const gridWidth = outputGrid[0].length;
+  const gridHeight = outputGrid.length;
+
+  // Before collapsing a cell, push the current state of the grid to the stack
+  saveGridState();
+
   /* 
   ========================================================================
   Step 1:  Create a list of cells that have not yet been collapsed.
@@ -290,13 +305,34 @@ function populateOutputGrid() {
   Step 3: Collapse the selected cell into a single tile.
   ========================================================================
   */
-  if (cell.options.length === 0) {
-    // TODO implement a way to backtrack instead of restarting
-    startOver();
-    return;
+  if (cell.options.size == 0) {
+    console.log("backtrack attempt #" + (backtrackAttempts + 1));
+    if (backtrackAttempts < 5) {
+      // look one steps back
+      backtrack(1);
+      backtrackAttempts++;
+      
+    } else if (backtrackAttempts >= 5 && backtrackAttempts < 10) {
+      // look two steps back
+      backtrack(2);
+      backtrackAttempts++;
+      
+    } else if (backtrackAttempts >= 10 && backtrackAttempts < 20) {
+      // look five steps back
+      backtrack(5);
+      backtrackAttempts++;
+      
+    } else { // if we've backtracked 20 times, just start over
+      startOver();
+    }
+    return; 
   }
+  backtrackAttempts = 0; // reset the backtrack counter
+
   cell.collapse();
-  const tile = tileVariants[cell.options[0]]; // only one option when collapsed
+  const tile = tileVariants[cell.selectedTile];
+
+  decisions.push(new Decision(cell, tile.index));
 
 
   /*
@@ -309,29 +345,56 @@ function populateOutputGrid() {
     const upNeighbor = outputGrid[cell.y - 1][cell.x];
 
     if (!upNeighbor.collapsed) {
-      // Remove tile options in neighbor that not present in this tile's 'up' options.
+      // Remove tile options in neighbor that are not present in this tile's 'up' options.
       // In other words, perform an INTERSECTION between neighbor's options and this tile's 'up' options
 
-      // console.log("upNeighbor before:", {...upNeighbor});
-      // console.log("tile.up:", tile.up);
-      upNeighbor.options = upNeighbor.options.filter(tileOption => tile.up.has(tileOption));
-      // console.log("upNeighbor after:", {...upNeighbor});
+      upNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.up.has(optionTile)) {
+            upNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.up.get(optionTile);
+          upNeighbor.options.set(optionTile, optionFrequency + currentTileFrequency);
+        }
+      });
     }
   }
 
-  if (cell.x < dim - 1) { // there's a tile to our right
+  if (cell.x < gridWidth - 1) { // there's a tile to our right
     const rightNeighbor = outputGrid[cell.y][cell.x + 1];
 
     if (!rightNeighbor.collapsed) {
-      rightNeighbor.options = rightNeighbor.options.filter(tileOption => tile.right.has(tileOption));
+      // Remove tile options in neighbor that are not present in this tile's 'right' options.
+      // In other words, perform an INTERSECTION between neighbor's options and this tile's 'right' options
+
+      rightNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.right.has(optionTile)) {
+            rightNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.right.get(optionTile);
+          rightNeighbor.options.set(optionTile, optionFrequency + currentTileFrequency);
+        }
+      });
     }
   }
 
-  if (cell.y < dim - 1) { // there's a tile below us
+  if (cell.y < gridHeight - 1) { // there's a tile below us
     const downNeighbor = outputGrid[cell.y + 1][cell.x];
 
     if (!downNeighbor.collapsed) {
-      downNeighbor.options = downNeighbor.options.filter(tileOption => tile.down.has(tileOption));
+      // Remove tile options in neighbor that are not present in this tile's 'down' options.
+      // In other words, perform an INTERSECTION between neighbor's options and this tile's 'down' options
+
+      downNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.down.has(optionTile)) {
+            downNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.down.get(optionTile);
+          downNeighbor.options.set(optionTile, optionFrequency + currentTileFrequency);
+        }
+      });
     }
   }
 
@@ -339,8 +402,60 @@ function populateOutputGrid() {
     const leftNeighbor = outputGrid[cell.y][cell.x - 1];
 
     if (!leftNeighbor.collapsed) {
-      leftNeighbor.options = leftNeighbor.options.filter(tileOption => tile.left.has(tileOption));
+      // Remove tile options in neighbor that are not present in this tile's 'left' options.
+      // In other words, perform an INTERSECTION between neighbor's options and this tile's 'left' options
+
+      leftNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.left.has(optionTile)) {
+            leftNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.left.get(optionTile);
+          leftNeighbor.options.set(optionTile, optionFrequency + currentTileFrequency);
+        }
+      });
     }
   }
 }
 
+// When we backtrack, we restore the state and exclude the previous decision
+function backtrack(steps) {
+  const poppedDecisions = [];
+
+  for (let i = 0; i < steps; i++) {
+    const decision = decisions.pop();
+    poppedDecisions.push(decision);
+    
+    gridStates.pop();
+  }
+
+  // restore the grid state
+  const prevGridState = gridStates[gridStates.length - 1];
+  outputGrid = prevGridState.map(row => row.map(cellObj => {
+    const cell = Cell.fromObject(cellObj);
+    cell.options = new Map(cell.options);
+    return cell;
+  }));
+
+  // exclude the tile options in the restored grid state
+  for (const decision of poppedDecisions) {
+    const cell = outputGrid[decision.cell.y][decision.cell.x];
+    if (!cell.collapsed) {
+      cell.exclude(decision.tileIndex);
+    } else {
+      startOver();
+      break;
+    }
+  }
+}
+
+/**
+ * Save a deep copy of the current grid state to the stack
+ */
+function saveGridState() {
+  gridStates.push(outputGrid.map(row => row.map(cell => {
+    let cellCopy = Object.assign({}, cell);
+    cellCopy.options = Array.from(cell.options);
+    return cellCopy;
+  })));
+}
