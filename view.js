@@ -7,7 +7,7 @@
 let analyzeButton, playButton, pauseButton, resetButton, 
     dimInput, fileInput, tileSizeInput, tileSizeSlider, 
     dimSlider, loadingBar, saveImageButton, saveTilemapButton, 
-    githubLink, helpButton, helpMenu, oscillator, envelope, frameRateSlider;
+    githubLink, oscillator, envelope, frameRateSlider;
 
 
 function setupView() {
@@ -226,7 +226,20 @@ function handleReset() {
 
 function updateDim() {
     if (!isNaN(dimInput.value())) {
-        dim = parseInt(dimInput.value());
+        if (dimInput.value() >= 1 && dimInput.value() <= 50){
+            dim = parseInt(dimInput.value());
+
+            const error = select('#dim-error');
+            error.remove();
+        } else {
+            let errorText = createP('Dimensions must be between 1 and 50.');
+            errorText.class('error-message');
+            const error = select('#dim-error');
+            if (error) {
+                error.remove();
+            }
+            errorText.id('dim-error');
+        }
     }
 }
 
@@ -246,12 +259,11 @@ function updateTileSize() {
             error.remove();
         } else {
             let errorText = createP('Tile size must be between 10 and 100 pixels.');
+            errorText.class('error-message');
             const error = select('#tile-size-error');
             if (error) {
                 error.remove();
             }
-            errorText.style('color', 'red');
-            errorText.position(140, 610);
             errorText.id('tile-size-error');
         }
     }
@@ -540,12 +552,14 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
                 }
                 rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
                 
-                // Draw the entropy value in the center of the cell
-                fill(0);
-                textSize(10);
-                strokeWeight(0);
-                textAlign(CENTER, CENTER);
-                text(entropy, xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
+                if (dim <= 20) {
+                    // Draw the entropy value in the center of the cell
+                    fill(0);
+                    textSize(10);
+                    strokeWeight(0);
+                    textAlign(CENTER, CENTER);
+                    text(entropy, xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
+                }
             }
         }
     }

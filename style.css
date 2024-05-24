@@ -169,3 +169,12 @@ label {
     background-color: white;
     padding: 10px;
 }
+
+.error-message {
+    color: red;
+    /* place in bottom center of screen */
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
