@@ -1,3 +1,9 @@
+/**
+ * This file contains the main logic for the Wave Function Collapse algorithm.
+ * 
+ * @author Nathan Hinthorne
+ */
+
 /** The types of tiles that can be used in the output grid */
 let tileVariants = [];
 
@@ -7,14 +13,26 @@ let inputGrid = [];
 /** 2D Array. Contains cells that get collapsed into tiles */
 let outputGrid = [];
 
+
+// Backtracking variables
+
 /** A stack of previous output grid states to allow for backtracking */
 let gridStates = [];
 
 /** A stack of cell collapsing decisions made by the program to allow for backtracking */
 let decisions = [];
 
+
+// Analysis variables
+
 /** The number of times the program has backtracked */
 let backtrackAttempts = 0;
+
+/** The number of iterations of WFC it takes to fully populate the output grid */
+let totalCycleCount = 0;
+
+/** The number of times WFC has backtracked to fully populate the output grid */
+let totalBacktracks = 0;
 
 let dim = 10;
 let tilePixelSize = 22; 
@@ -416,6 +434,8 @@ function populateOutputGrid() {
       });
     }
   }
+
+  totalCycleCount++;
 }
 
 // When we backtrack, we restore the state and exclude the previous decision
@@ -447,6 +467,8 @@ function backtrack(steps) {
       break;
     }
   }
+
+  totalBacktracks++;
 }
 
 /**

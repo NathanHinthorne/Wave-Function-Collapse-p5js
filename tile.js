@@ -1,3 +1,9 @@
+/**
+ * Tiles refer to the individual images that make up the grid. 
+ * They contain information about their possible neighboring tiles.
+ * 
+ * @author Nathan Hinthorne
+ */
 class Tile {
   constructor(img) {
     this.img = img;

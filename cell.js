@@ -1,3 +1,8 @@
+/**
+ * Cells are placed in the output grid and contain the possible tiles that can be placed in that cell.
+ * 
+ * @author Nathan Hinthorne
+ */
 class Cell {
 
   constructor(tileIndices, x, y) {

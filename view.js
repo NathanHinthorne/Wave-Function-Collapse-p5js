@@ -1,3 +1,9 @@
+/**
+ * Contains the functions for setting up the view of the application, including the canvas, buttons, sliders, and input fields.
+ * 
+ * @author Nathan Hinthorne
+ */
+
 let analyzeButton, playButton, pauseButton, resetButton, 
     dimInput, fileInput, tileSizeInput, tileSizeSlider, 
     dimSlider, loadingBar, saveImageButton, saveTilemapButton, 
