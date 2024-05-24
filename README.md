@@ -53,10 +53,11 @@ consider a game mechanic where the user can influence WHEN and WHICH cells colla
 
 my end goal for this project is to allow for easy creation of tile connections rules where you don't need to hardcode anything. Those rules could be exported and be used for proceedurally generated levels in games.
 
-
 ## How to use
 
 Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/) to see the algorithm in action and generate your own images!
+
+Please be aware that your input image size might be too small for the algorithm to generate realistic terrain. With a larger sample size, the algorithm produces better tile connection rules, which results in output images that are closer to your expectations.
 
 ## Acknowledgements
 
