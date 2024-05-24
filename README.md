@@ -45,7 +45,14 @@ NOTE: Anything preceeded by "???" is a feature that I'm not sure if I want to im
   - [x] For edge tiles analyzed in the input grid, because some of their neighbors don't exist, let the **most common** tile found in the input grid be the only tile that can be placed next to the edge tile. Best case scenario, the most common tile is "air" or "empty" so it will probably fit well.
   - [x] Implement a "backtracking" feature that allows the algorithm to backtrack and try a different tile if it gets stuck (i.e. no tiles can be placed in a cell). Utilize use a stack of previous states to accomplish this.
   - [ ] Implement Shannon Entropy as a more accurate form of entropy. Shannon Entropy accounts for weighted probabilities of tiles.
+  - [ ] As an *optional* form of tile generation, geared more towards terrain for 2D platformers, have some **pre-collapsed** tiles around the border (specifically thinking of a layer of ground tiles). This would fix issue where ground tiles can be connected to air beneath.
+  - [ ] Have "tile clusters" (composed of 2x2 tiles) which have their own frequency hints and adjacency rules. This would allow for input image patterns to be followed closer. One benefit is that this would fix the issue where blocks are placed too close together in the output.
 - [ ] ??? Allow the user to upload the tile variant images in *addition* to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development
+
+consider a game mechanic where the user can influence WHEN and WHICH cells collapse.
+
+my end goal for this project is to allow for easy creation of tile connections rules where you don't need to hardcode anything. Those rules could be exported and be used for proceedurally generated levels in games.
+
 
 ## How to use
 
