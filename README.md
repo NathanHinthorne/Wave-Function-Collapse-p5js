@@ -26,7 +26,7 @@ For a more detailed explanation how the algorithm works and how it produces the 
 
 ## Plans
 
-NOTE: Anything preceeded by "???" is a feature that I'm not sure if I want to implement yet. I'm still thinking about it.
+NOTE: Anything preceeded by "???" is a feature that I'm not sure if I want to implement yet.
 
 - Finish a basic, custom implementation of WFC:
   - [x] Parse input image to collect unique tiles
