@@ -51,7 +51,7 @@ function setupView() {
     fileInput = createFileInput(handleFile);
     fileInput.position(100, inputParamsStartY);
     fileInput.style('display', 'block'); 
-    fileInput.attribute('accept', '.png');
+    fileInput.attribute('accept', '.jpg, .jpeg, .png');
 
     // Create tile pixel size input box
     tileSizeInput = createInput('');
