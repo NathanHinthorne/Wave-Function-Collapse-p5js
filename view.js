@@ -4,9 +4,9 @@
  * @author Nathan Hinthorne
  */
 
-let analyzeButton, playButton, pauseButton, resetButton, 
-    dimInput, fileInput, tileSizeInput, tileSizeSlider, 
-    dimSlider, loadingBar, saveImageButton, saveTilemapButton, 
+let analyzeButton, playButton, pauseButton, resetButton,
+    dimInput, fileInput, tileSizeInput, tileSizeSlider,
+    dimSlider, loadingBar, saveImageButton, saveTilemapButton,
     githubLink, oscillator, envelope, frameRateSlider;
 
 
@@ -50,7 +50,7 @@ function setupView() {
     // Create file input
     fileInput = createFileInput(handleFile);
     fileInput.position(100, inputParamsStartY);
-    fileInput.style('display', 'block'); 
+    fileInput.style('display', 'block');
     fileInput.attribute('accept', '.jpg, .jpeg, .png');
 
     // Create tile pixel size input box
@@ -76,7 +76,7 @@ function setupView() {
     });
     tileSizeSlider.hide();
 
-    
+
 
     // --- OUTPUT IMAGE PARAMETERS ---
 
@@ -100,15 +100,15 @@ function setupView() {
     // Create pause button
     pauseButton = createButton('');
     pauseButton.position(buttonX, firstButton + 120);
-    pauseButton.mousePressed(handlePause);   
+    pauseButton.mousePressed(handlePause);
     pauseButton.elt.innerHTML = '<i class="fas fa-pause"></i>'; // Place icon inside the button
     pauseButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     pauseButton.class('grayed-out');
-    
+
     // Create reset button
     resetButton = createButton('');
     resetButton.position(buttonX, firstButton + 180);
-    resetButton.mousePressed(handleReset);  
+    resetButton.mousePressed(handleReset);
     resetButton.elt.innerHTML = '<i class="fas fa-undo"></i>'; // Place icon inside the button
     resetButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     resetButton.class('grayed-out');
@@ -193,6 +193,14 @@ function setupView() {
 
     // Create a simple how to use section
     displayGettingStarted(670, 50, 340, 410);
+
+
+    // --- LOGS ---
+    // Create a button to download the logs
+    // const downloadLogsButton = createButton('Download Logs');
+    // downloadLogsButton.class('yellow-button')
+    // downloadLogsButton.position(800, 630);
+    // downloadLogsButton.mousePressed(downloadLogs);
 }
 
 
@@ -226,13 +234,13 @@ function handleReset() {
 
 function updateDim() {
     if (!isNaN(dimInput.value())) {
-        if (dimInput.value() >= 1 && dimInput.value() <= 50){
+        if (dimInput.value() >= 1 && dimInput.value() <= 100) {
             dim = parseInt(dimInput.value());
 
             const error = select('#dim-error');
             error.remove();
         } else {
-            let errorText = createP('Dimensions must be between 1 and 50.');
+            let errorText = createP('Dimensions must be between 1 and 100.');
             errorText.class('error-message');
             const error = select('#dim-error');
             if (error) {
@@ -246,7 +254,7 @@ function updateDim() {
 function updateTileSize() {
 
     if (!isNaN(tileSizeInput.value())) {
-        if (tileSizeInput.value() >= 10 && tileSizeInput.value() <= 100){
+        if (tileSizeInput.value() >= 10 && tileSizeInput.value() <= 100) {
             tilePixelSize = parseFloat(tileSizeInput.value());
 
             parseImage();
@@ -280,7 +288,7 @@ function updateSliderFromInput(slider, input) {
     let num = parseInt(input.value());
     if (!isNaN(num)) {
         slider.show();
-        
+
         const maxVal = input.value() * 1.5;
         slider.elt.max = maxVal;
         const minVal = Math.floor(input.value() / 2);
@@ -351,34 +359,34 @@ function handleTilemapDownload() {
 }
 
 function saveTilemap(tilemap, filename) {
-  let tilemapJSON = {
-    "tilemap": tilemap
-  };
+    let tilemapJSON = {
+        "tilemap": tilemap
+    };
 
-  let jsonStr = JSON.stringify(tilemapJSON, null, 0); // No indentation
+    let jsonStr = JSON.stringify(tilemapJSON, null, 0); // No indentation
 
-  // Add a newline and indentation after each inner list in the tilemap array
-  jsonStr = jsonStr.replace(/\],/g, '],\n\t\t');
+    // Add a newline and indentation after each inner list in the tilemap array
+    jsonStr = jsonStr.replace(/\],/g, '],\n\t\t');
 
-  // Add a newline and indentation after the opening bracket of the tilemap array
-  jsonStr = jsonStr.replace(/"tilemap": \[/, '"tilemap": [\n\t\t');
+    // Add a newline and indentation after the opening bracket of the tilemap array
+    jsonStr = jsonStr.replace(/"tilemap": \[/, '"tilemap": [\n\t\t');
 
-  // Add a newline and indentation before the closing bracket of the tilemap array
-  jsonStr = jsonStr.replace(/\]\n\}/, '\n\t]\n}');
+    // Add a newline and indentation before the closing bracket of the tilemap array
+    jsonStr = jsonStr.replace(/\]\n\}/, '\n\t]\n}');
 
-  // Add a newline after the opening curly brace
-  jsonStr = jsonStr.replace(/\{/, '{\n');
+    // Add a newline after the opening curly brace
+    jsonStr = jsonStr.replace(/\{/, '{\n');
 
-  // Add a newline before the closing curly brace
-  jsonStr = jsonStr.replace(/\}$/, '\n}');
+    // Add a newline before the closing curly brace
+    jsonStr = jsonStr.replace(/\}$/, '\n}');
 
-  let blob = new Blob([jsonStr], {type: "application/json"});
-  let url = URL.createObjectURL(blob);
+    let blob = new Blob([jsonStr], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
 
-  let a = document.createElement('a');
-  a.download = filename;
-  a.href = url;
-  a.click();
+    let a = document.createElement('a');
+    a.download = filename;
+    a.href = url;
+    a.click();
 }
 
 function enableEditButtons(isEnabled) {
@@ -524,44 +532,61 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
     noStroke();
     rect(cardX, cardY, cardWidth, cardHeight, 2);
 
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            let cell = outputGrid[y][x];
-            const xPos = cardX + x * (tileDisplaySize + spacing) + margin;
-            const yPos = cardY + y * (tileDisplaySize + spacing) + margin;
+    if (dim <= 40) {
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                let cell = outputGrid[y][x];
+                const xPos = cardX + x * (tileDisplaySize + spacing) + margin;
+                const yPos = cardY + y * (tileDisplaySize + spacing) + margin;
 
-            // Draw black lines around the tile
-            stroke(0);
-            strokeWeight(1);
-            noFill();
-            rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
-            
-            if (cell.collapsed) {
-                // draw the tile image
-                let index = cell.selectedTile;
-                image(tileVariants[index].img, xPos, yPos, tileDisplaySize, tileDisplaySize);
-            } else {
-                let entropy = cell.calculateEntropy();
-                let maxEntropy = cell.maxEntropy;
-                let greenShade = map(entropy, 0, maxEntropy, 0, 255);
-                
-                // Draw a rectangle with a shade of green based on the entropy value
-                fill(greenShade, 255, greenShade);
-                if (entropy === 0) {
-                    fill(255, 0, 0);
-                }
+                // Draw black lines around the tile
+                stroke(0);
+                strokeWeight(1);
+                noFill();
                 rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
-                
-                if (dim <= 20) {
-                    // Draw the entropy value in the center of the cell
-                    fill(0);
-                    textSize(10);
-                    strokeWeight(0);
-                    textAlign(CENTER, CENTER);
-                    text(entropy, xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
+
+                if (cell.collapsed) {
+                    // draw the tile image
+                    let index = cell.selectedTile;
+                    image(tileVariants[index].img, xPos, yPos, tileDisplaySize, tileDisplaySize);
+                } else {
+                    let roughEntropy = cell.options.size;
+                    let maxEntropy = cell.maxEntropy;
+                    let greenShade = map(roughEntropy, 0, maxEntropy, 0, 255);
+
+                    // Draw a rectangle with a shade of green based on the entropy value
+                    fill(greenShade, 255, greenShade);
+                    if (roughEntropy === 0) {
+                        fill(255, 0, 0);
+                    }
+                    rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+
+                    if (dim <= 20) {
+                        // Draw the entropy value in the center of the cell
+                        fill(0);
+                        textSize(10);
+                        strokeWeight(0);
+                        textAlign(CENTER, CENTER);
+                        text(roughEntropy, xPos + tileDisplaySize / 2, yPos + tileDisplaySize / 2);
+                    }
                 }
             }
         }
+    } else {
+        // if the grid is too large, simply display the progress
+
+        const completionPercentage = Math.floor(completionProgress * 100);
+
+        fill(0);
+        textSize(20);
+        textAlign(CENTER, CENTER);
+        text(completionPercentage + '%', cardX + cardWidth / 2, cardY + cardHeight / 2);
+
+        // Draw a progress bar
+        fill(0);
+        rect(cardX + 10, cardY + cardHeight / 2 + 20, cardWidth - 20, 20);
+        fill(0, 255, 0);
+        rect(cardX + 10, cardY + cardHeight / 2 + 20, completionProgress * (cardWidth - 20), 20);
     }
 
     pop();
@@ -608,7 +633,7 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
 
 //     const gridWidth = outputGrid[0].length;
 //     const gridHeight = outputGrid.length;
-    
+
 //     // Check if the cell is within the grid and not collapsed
 //     if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
 //         const cell = outputGrid[y][x];
@@ -618,7 +643,7 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
 //             return;
 //         }
 //     }
-    
+
 //     // Hide the popup if it's not over a valid cell
 //     if (popupDiv) {
 //         popupDiv.remove();
@@ -648,3 +673,36 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
 //         imgElem.parent(popupDiv);
 //     }
 // }
+
+
+
+/*
+====================================================================
+Functions to aid in algorithm analysis
+====================================================================
+*/
+function downloadLogs() {
+    // Create a Blob with the logs
+    // const blob = new Blob([logs.join('\n')], { type: 'text/plain' });
+    const blob = new Blob([logs.join('\n')], { type: 'text/csv' });
+
+    // Create a link element
+    const link = document.createElement('a');
+
+    // Set the href to the Blob URL
+    link.href = URL.createObjectURL(blob);
+
+    // Set the download attribute to the desired file name
+    // link.download = 'logs.txt';
+    link.download = 'logs.csv';
+
+    // Add the link to the document
+    document.body.appendChild(link);
+
+    // Simulate a click on the link
+    link.click();
+
+    // Remove the link from the document
+    document.body.removeChild(link);
+}
+

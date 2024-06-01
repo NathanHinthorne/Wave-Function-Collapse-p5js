@@ -34,8 +34,24 @@ let totalCycleCount = 0;
 /** The number of times WFC has backtracked to fully populate the output grid */
 let totalBacktracks = 0;
 
+let completionProgress = 0;
+
+
+let totalProgramExecutions = 0;
+const logs = [];
+
+function myLogger(...args) {
+  // Call the original console.log function
+  console.log.apply(console, args);
+
+  // Add the log to the logs array
+  logs.push(args.join(' '));
+}
+
+
+
 let dim = 10;
-let tilePixelSize = 22; 
+let tilePixelSize = 22;
 const INPUT_IMAGE_DISPLAY_SIZE = 450;
 const OUTPUT_IMAGE_DISPLAY_SIZE = 450;
 
@@ -78,6 +94,17 @@ function draw() {
   if (outputIsGenerating) {
     populateOutputGrid();
   }
+
+  // if (outputIsComplete) {
+  //   setup(); // restart setup for next test
+  //   startOver(); // place cells back in the grid
+  //   outputIsComplete = false;
+
+  //   totalProgramExecutions++;
+  //   if (totalProgramExecutions % 10 == 0) {
+  //     dim++;
+  //   }
+  // }
 }
 
 
@@ -94,7 +121,7 @@ function parseImage() {
       // Extract the portion of the image at the given x and y coordinates
       const tileImage = inputImage.get(x, y, tilePixelSize, tilePixelSize);
       const tile = new Tile(tileImage);
-      
+
       // Add the tile to the input grid
       inputGrid[row][col] = tile;
     }
@@ -138,7 +165,7 @@ function findTileVariants() {
             tile.index = variant.index;
             break;
           }
-        } 
+        }
         tile.totalFrequencyInGrid += 1;
       }
     }
@@ -164,7 +191,7 @@ function findNeighbors() {
     for (let x = 0; x < width; x++) {
       const tile = inputGrid[y][x]; // the tile we're looking at
       const tileVariant = tileVariants[tile.index]; // the tile to modify
-      
+
       if (y > 0) { // there's a tile above us
         const upNeighbor = inputGrid[y - 1][x];
         if (!tileVariant.up.has(upNeighbor.index)) {
@@ -173,7 +200,7 @@ function findNeighbors() {
           const upNeighborFrequency = tileVariant.up.get(upNeighbor.index);
           tileVariant.up.set(upNeighbor.index, upNeighborFrequency + 1);
         }
-      } 
+      }
       else {
         // Approach 1: there's no tile above us, so we can be adjacent to any tile
         // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
@@ -192,7 +219,7 @@ function findNeighbors() {
           const rightNeighborFrequency = tileVariant.right.get(rightNeighbor.index);
           tileVariant.right.set(rightNeighbor.index, rightNeighborFrequency + 1);
         }
-      } 
+      }
       else {
         // Approach 1: there's no tile to our right, so we can be adjacent to any tile
         // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
@@ -211,7 +238,7 @@ function findNeighbors() {
           const downNeighborFrequency = tileVariant.down.get(downNeighbor.index);
           tileVariant.down.set(downNeighbor.index, downNeighborFrequency + 1);
         }
-      } 
+      }
       else {
         // Approach 1: there's no tile below us, so we can be adjacent to any tile
         // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
@@ -230,7 +257,7 @@ function findNeighbors() {
           const leftNeighborFrequency = tileVariant.left.get(leftNeighbor.index);
           tileVariant.left.set(leftNeighbor.index, leftNeighborFrequency + 1);
         }
-      } 
+      }
       else {
         // Approach 1: there's no tile to our left, so we can be adjacent to any tile
         // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
@@ -250,7 +277,9 @@ function findNeighbors() {
  */
 function startOver() {
   outputGrid = []; // Clear the output grid
-  
+  totalBacktracks = 0;
+  totalCycleCount = 0;
+
   // Create cell for each spot on the grid
   for (let y = 0; y < dim; y++) { //TODO change this when dims are not equal (not a square grid)
     outputGrid[y] = [];
@@ -279,11 +308,15 @@ function populateOutputGrid() {
   ========================================================================
   */
   let uncollapsedCells = outputGrid.flat().filter(cell => !cell.collapsed);
+  completionProgress = 1 - (uncollapsedCells.length / (dim * dim));
 
   if (uncollapsedCells.length == 0) {
     outputIsGenerating = false;
     outputIsComplete = true;
     enableDownloadButtons(true);
+    // myLogger("#" + totalProgramExecutions + ", Cycle count: " + totalCycleCount + ", Backtracks: " + totalBacktracks, "\n");
+    myLogger(totalProgramExecutions + "," + totalCycleCount + "," + totalBacktracks);
+    totalProgramExecutions++;
     return;
   }
 
@@ -293,7 +326,6 @@ function populateOutputGrid() {
   //   const duration = 0.1;
   //   playBeepSFX(freq, duration);
   // }
-
 
 
   /*
@@ -315,38 +347,41 @@ function populateOutputGrid() {
   if (stopIndex > 0) uncollapsedCells.splice(stopIndex); // cut out all cells with higher entropy
   const cell = random(uncollapsedCells); // pick a random cell that's tied for lowest entropy
 
-  // console.log("Lowest entropy cell:", {...lowestEntropyCell});
-  
 
   /*
   ========================================================================
-  Step 3: Collapse the selected cell into a single tile.
+  Step 3: Backtrack if necessary
   ========================================================================
   */
   if (cell.options.size == 0) {
-    console.log("backtrack attempt #" + (backtrackAttempts + 1));
     if (backtrackAttempts < 5) {
       // look one steps back
       backtrack(1);
       backtrackAttempts++;
-      
+
     } else if (backtrackAttempts >= 5 && backtrackAttempts < 10) {
       // look two steps back
       backtrack(2);
       backtrackAttempts++;
-      
+
     } else if (backtrackAttempts >= 10 && backtrackAttempts < 20) {
       // look five steps back
       backtrack(5);
       backtrackAttempts++;
-      
+
     } else { // if we've backtracked 20 times, just start over
       startOver();
     }
-    return; 
+    return;
   }
   backtrackAttempts = 0; // reset the backtrack counter
 
+
+  /*
+  ========================================================================
+  Step 4: Collapse the selected cell into a single tile.
+  ========================================================================
+  */
   cell.collapse();
   const tile = tileVariants[cell.selectedTile];
 
@@ -355,7 +390,7 @@ function populateOutputGrid() {
 
   /*
   ========================================================================
-  Step 4: Update the options fields of the neighboring cells based on the 
+  Step 5: Update the options fields of the neighboring cells based on the 
           adjacency rules and frequency hints of the collapsed cell's tile.
   ========================================================================
   */
@@ -368,7 +403,7 @@ function populateOutputGrid() {
 
       upNeighbor.options.forEach((optionFrequency, optionTile) => {
         if (!tile.up.has(optionTile)) {
-            upNeighbor.options.delete(optionTile);
+          upNeighbor.options.delete(optionTile);
         } else {
           // Combine the frequencies of the tile options
           const currentTileFrequency = tile.up.get(optionTile);
@@ -387,7 +422,7 @@ function populateOutputGrid() {
 
       rightNeighbor.options.forEach((optionFrequency, optionTile) => {
         if (!tile.right.has(optionTile)) {
-            rightNeighbor.options.delete(optionTile);
+          rightNeighbor.options.delete(optionTile);
         } else {
           // Combine the frequencies of the tile options
           const currentTileFrequency = tile.right.get(optionTile);
@@ -406,7 +441,7 @@ function populateOutputGrid() {
 
       downNeighbor.options.forEach((optionFrequency, optionTile) => {
         if (!tile.down.has(optionTile)) {
-            downNeighbor.options.delete(optionTile);
+          downNeighbor.options.delete(optionTile);
         } else {
           // Combine the frequencies of the tile options
           const currentTileFrequency = tile.down.get(optionTile);
@@ -425,7 +460,7 @@ function populateOutputGrid() {
 
       leftNeighbor.options.forEach((optionFrequency, optionTile) => {
         if (!tile.left.has(optionTile)) {
-            leftNeighbor.options.delete(optionTile);
+          leftNeighbor.options.delete(optionTile);
         } else {
           // Combine the frequencies of the tile options
           const currentTileFrequency = tile.left.get(optionTile);
@@ -445,7 +480,7 @@ function backtrack(steps) {
   for (let i = 0; i < steps; i++) {
     const decision = decisions.pop();
     poppedDecisions.push(decision);
-    
+
     gridStates.pop();
   }
 

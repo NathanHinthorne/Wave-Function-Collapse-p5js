@@ -1,4 +1,13 @@
 const { app, BrowserWindow } = require('electron');
+const winston = require('winston');
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.File({ filename: 'logfile.log' })
+    ]
+});
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -11,6 +20,8 @@ function createWindow() {
 
     win.loadFile('index.html');
     win.maximize();
+
+    logger.info('Window created');
 }
 
 app.whenReady().then(createWindow);

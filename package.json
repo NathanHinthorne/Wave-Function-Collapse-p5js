@@ -20,5 +20,8 @@
   "devDependencies": {
     "electron": "^30.0.1",
     "electron-builder": "^22.11.7"
+  },
+  "dependencies": {
+    "winston": "^3.13.0"
   }
 }

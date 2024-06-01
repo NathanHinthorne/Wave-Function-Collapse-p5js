@@ -23,16 +23,16 @@ class Cell {
 
     /** A Map where the keys are the indices of available tiles to choose from, and the values are their corresponding frequencies */
     this.options = new Map();
-    
+
     // This rolls adjacency rules and frequency hints into one
     // Key: Tile Index, Value: Number of times this tile was found connected to given tile index
     // start off with every tile as an option
     for (let tileIndex of tileIndices) {
       this.options.set(tileIndex, 0);
     }
-    
 
-    this.totalFrequencyInGrid = 0;
+    this.cachedEntropy = null;
+    this.entropyUpdated = false;
   }
 
   calculateEntropy() {
@@ -40,20 +40,30 @@ class Cell {
       return 0;
     }
 
-    return this.options.size;
+    // if (!this.entropyUpdated) {
+    //   return this.cachedEntropy;
+    // }
 
-    // TODO to find probability, find the total frequency that every tile variant maps to each tile option in this cell
-    // let totalFrequency = 0;
-    
+    // Approach #1: Rough estimate of entropy (not weighted by frequency)
+    let entropy = this.options.size;
+
+    // Approach #2: Shannon entropy
+    // let totalFrequencies = 0;
+    // for (const [_, freq] of this.options) {
+    //   totalFrequencies += freq
+    // }
 
     // let entropy = 0;
-    // for (let option of this.options) {
-    //   const probability = ;
-      
-    //   // Shannon entropy
+    // for (const [_, freq] of this.options) {
+    //   const probability = freq / totalFrequencies; // 1% to 100%
+
+    //   // Formula for Shannon entropy
     //   entropy -= probability * Math.log2(probability);
     // }
-    // return entropy;
+
+    this.cachedEntropy = entropy;
+    this.entropyUpdated = false;
+    return entropy;
   }
 
   collapse() {
@@ -88,9 +98,9 @@ class Cell {
     }
 
     this.selectedTile = pick;
-    
+
     this.options.clear(); // erase all other options
-    
+
     this.collapsed = true;
   }
 
