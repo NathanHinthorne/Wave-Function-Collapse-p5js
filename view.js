@@ -237,8 +237,12 @@ function updateDim() {
         if (dimInput.value() >= 1 && dimInput.value() <= 100) {
             dim = parseInt(dimInput.value());
 
+            handleReset();
+
             const error = select('#dim-error');
-            error.remove();
+            if (error) {
+                error.remove();
+            }
         } else {
             let errorText = createP('Dimensions must be between 1 and 100.');
             errorText.class('error-message');
@@ -264,7 +268,9 @@ function updateTileSize() {
             redraw();
 
             const error = select('#tile-size-error');
-            error.remove();
+            if (error) {
+                error.remove();
+            }
         } else {
             let errorText = createP('Tile size must be between 10 and 100 pixels.');
             errorText.class('error-message');
