@@ -29,17 +29,17 @@ let decisions = [];
 let backtrackAttempts = 0;
 
 /** The number of iterations of WFC it takes to fully populate the output grid */
-let totalCycleCount = 0;
+let totalCycleCount = 1;
 
 /** The number of times WFC has backtracked to fully populate the output grid */
 let totalBacktracks = 0;
 
 let completionProgress = 0;
 
+let totalProgramExecutions = 1;
 
-let totalProgramExecutions = 0;
+
 const logs = [];
-
 function myLogger(...args) {
   // Call the original console.log function
   console.log.apply(console, args);
@@ -73,6 +73,8 @@ function setup() {
   setupView();
 
   frameRate(30);
+
+  myLogger("Grid size, Backtracks");
 }
 
 function draw() {
@@ -278,7 +280,7 @@ function findNeighbors() {
 function startOver() {
   outputGrid = []; // Clear the output grid
   totalBacktracks = 0;
-  totalCycleCount = 0;
+  totalCycleCount = 1;
 
   // Create cell for each spot on the grid
   for (let y = 0; y < dim; y++) { //TODO change this when dims are not equal (not a square grid)
@@ -314,8 +316,7 @@ function populateOutputGrid() {
     outputIsGenerating = false;
     outputIsComplete = true;
     enableDownloadButtons(true);
-    // myLogger("#" + totalProgramExecutions + ", Cycle count: " + totalCycleCount + ", Backtracks: " + totalBacktracks, "\n");
-    myLogger(totalProgramExecutions + "," + totalCycleCount + "," + totalBacktracks);
+    myLogger((dim * dim) + "," + totalBacktracks);
     totalProgramExecutions++;
     return;
   }

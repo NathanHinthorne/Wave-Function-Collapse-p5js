@@ -233,7 +233,7 @@ function handleReset() {
 }
 
 function updateDim() {
-    if (!isNaN(dimInput.value())) {
+    if (!isNaN(dimInput.value()) && imageIsAnalyzed) {
         if (dimInput.value() >= 1 && dimInput.value() <= 100) {
             dim = parseInt(dimInput.value());
 
@@ -699,8 +699,8 @@ function downloadLogs() {
     link.href = URL.createObjectURL(blob);
 
     // Set the download attribute to the desired file name
-    // link.download = 'logs.txt';
-    link.download = 'logs.csv';
+    const fileName = 'WFC logs ' + new Date().toLocaleString() + '.csv';
+    link.download = fileName;
 
     // Add the link to the document
     document.body.appendChild(link);
