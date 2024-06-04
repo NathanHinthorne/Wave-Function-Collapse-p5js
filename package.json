@@ -14,7 +14,7 @@
     "productName": "WFC",
     "win": {
       "target": "portable",
-      "icon": "assets/icon.ico"
+      "icon": "assets/grass-block.ico"
     }
   },
   "devDependencies": {

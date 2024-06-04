@@ -65,6 +65,7 @@ function setupView() {
     tileSizeInput.attribute('placeholder', 'Tile Size'); // Set placeholder text
     const px = createP('px');
     px.position(290, inputParamsStartY + 65);
+    tileSizeInput.elt.addEventListener('input', updateLabelPosition);
 
     // Create tile pixel size slider
     tileSizeSlider = createSlider(0, 100, 0);
@@ -123,6 +124,7 @@ function setupView() {
     });
     dimInput.changed(validateInput)
     dimInput.attribute('placeholder', 'Dimensions'); // Set placeholder text
+    dimInput.elt.addEventListener('input', updateLabelPosition);
 
     // Create dimension slider
     dimSlider = createSlider(0, 100, 0);
@@ -212,7 +214,7 @@ function analyze() {
 
 function handlePlay() {
     if (outputIsComplete || outputGrid.length == 0) { // if grid output grid is empty or completely filled
-        startOver();
+        initializeOutputGrid();
         outputIsComplete = false;
         enableDownloadButtons(false);
     }
@@ -226,7 +228,7 @@ function handlePause() {
 }
 
 function handleReset() {
-    startOver();
+    initializeOutputGrid();
     outputIsGenerating = false;
     outputIsComplete = false;
     enableDownloadButtons(false);
@@ -287,6 +289,18 @@ function validateInput() {
     let num = parseInt(this.value());
     if (isNaN(num)) {
         this.value(''); // Clear the input
+    }
+}
+
+function updateLabelPosition(event) {
+    const inputField = event.target;
+
+    console.log('Placeholder text:', inputField.placeholder);
+
+    if (inputField.value) {
+        inputField.classList.add('has-content');
+    } else {
+        inputField.classList.remove('has-content');
     }
 }
 
@@ -464,9 +478,15 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
         tileYPos = cardY + 30 + row * (tileDisplaySize + spacing + rowSpacing);
 
         image(tile.img, tileXPos, tileYPos, tileDisplaySize, tileDisplaySize);
+
+        push(); // Save current drawing style settings and transformations
+
+        // Draw the tile index below the tile image
         fill(0);
         textSize(8);
-        text(i, tileXPos, tileYPos + tileDisplaySize + 10);
+        const str = i.toString();
+        const txtWidth = textWidth(str);
+        text(str, tileXPos + tileDisplaySize / 2 - txtWidth / 2, tileYPos + tileDisplaySize + 10);
 
         // Draw black lines around the tile
         stroke(0);
@@ -474,10 +494,7 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
         noFill();
         rect(tileXPos, tileYPos, tileDisplaySize, tileDisplaySize);
 
-        // Reset fill, stroke, and strokeWeight for the next iteration
-        fill(255);
-        stroke(255);
-        strokeWeight(0);
+        pop(); // Restore saved drawing style settings and transformations
     }
 
     // show ... if there are more than maxRows rows

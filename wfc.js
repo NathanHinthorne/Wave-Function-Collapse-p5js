@@ -139,6 +139,9 @@ function analyzeTiles() {
   console.log("Tile connections found:", tileVariants);
 }
 
+/**
+ * Find all the unique tile variants in the input grid
+ */
 function findTileVariants() {
   tileVariants = [];
 
@@ -277,7 +280,7 @@ function findNeighbors() {
 /**
  * Clear the output grid and create a new cell for each spot on the grid
  */
-function startOver() {
+function initializeOutputGrid() {
   outputGrid = []; // Clear the output grid
   totalBacktracks = 0;
   totalCycleCount = 1;
@@ -296,6 +299,25 @@ function startOver() {
 }
 
 
+function restartOutputGrid() {
+  outputGrid = [];
+
+  // Create cell for each spot on the grid
+  for (let y = 0; y < dim; y++) { //TODO change this when dims are not equal (not a square grid)
+    outputGrid[y] = [];
+    for (let x = 0; x < dim; x++) {
+      // pass in the indices of the tile variants
+      const tileIndices = tileVariants.map(tile => tile.index);
+      outputGrid[y][x] = new Cell(tileIndices, x, y);
+    }
+  }
+
+  outputIsInitialized = true;
+}
+
+/**
+ * Collapsing a cell into a single tile in a way which respects the local constraints.
+ */
 function populateOutputGrid() {
 
   const gridWidth = outputGrid[0].length;
@@ -371,7 +393,7 @@ function populateOutputGrid() {
       backtrackAttempts++;
 
     } else { // if we've backtracked 20 times, just start over
-      startOver();
+      restartOutputGrid();
     }
     return;
   }
@@ -499,7 +521,7 @@ function backtrack(steps) {
     if (!cell.collapsed) {
       cell.exclude(decision.tileIndex);
     } else {
-      startOver();
+      initializeOutputGrid();
       break;
     }
   }

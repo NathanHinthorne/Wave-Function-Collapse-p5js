@@ -20,6 +20,7 @@ button {
 button:hover {
     background-color: #3e8e41;
 }
+
 button:active {
     background-color: #316533;
 }
@@ -116,6 +117,13 @@ input[type=file] {
     background-color: #4CAF50;
     color: white;
     cursor: pointer;
+}
+
+input.has-content::placeholder {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    transition: all 0.2s ease-in-out;
 }
 
 label {

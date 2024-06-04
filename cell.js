@@ -35,6 +35,11 @@ class Cell {
     this.entropyUpdated = false;
   }
 
+  /**
+   * Calculates the entropy of the cell based on the tile options available.
+   * 
+   * @returns {number} The entropy of the cell
+   */
   calculateEntropy() {
     if (this.collapsed) {
       return 0;
@@ -66,6 +71,9 @@ class Cell {
     return entropy;
   }
 
+  /**
+   * Collapse the cell by picking from the tile options, weighted by their frequency
+   */
   collapse() {
     if (this.collapsed) {
       throw new Error('Cell has already been collapsed');
@@ -74,9 +82,6 @@ class Cell {
     if (this.options.size === 0) {
       throw new Error('Tried to collapse, but no tile options were available')
     }
-
-    // pick randomly from the options, weighted by their frequency
-
     // Calculate cumulative frequencies
     let frequencyDistribution = new Map();
     let totalFrequency = 0;
