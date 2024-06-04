@@ -6,7 +6,7 @@ This is a JavaScript implementation of the Wave Function Collapse (WFC) algorith
 
 ## Purpose
 
-Ultimately my hope for this project is that it would facilitate easy map creation for game devs, where they wouldn't need to spend time hardcoding tile connections rules, and can simply supply an input image that fits their expectations. Further, the **tile rules** themselves could be exported and used for proceedurally generated maps.
+Ultimately, my hope for this project is that it would facilitate easy map creation for game devs, where they wouldn't need to spend time hardcoding tile connections rules, and can simply supply an input image that fits their expectations. Further, the **tile rules** themselves could be exported and used for proceedurally generated maps.
 
 Here are some more specific ideas that support the statement above:
 
@@ -35,7 +35,7 @@ The algorithm works in the following way:
 
     a. The propagation of tiles is done by choosing the cell with the lowest entropy (the cell with the fewest tile options), then collapsing it into a single tile. This process is repeated until the grid is filled.
 
-For a more detailed explanation how the algorithm works and how it produces the desired results, see the [paper](https://nothinHereYet) I wrote on the subject.
+For a more detailed explanation how the algorithm works and how it produces the desired results, see the [paper](https://drive.google.com/file/d/1-WoEQ621dulmirr-kJOZsOoEZSxZ8T0e/view?usp=sharing) I wrote on the subject.
 
 ## Plans
 
@@ -53,8 +53,8 @@ NOTE: Anything preceeded by "???" is a feature that I'm not sure if I want to im
   - [x] For edge tiles analyzed in the input grid, because some of their neighbors don't exist, let the **most common** tile found in the input grid be the only tile that can be placed next to the edge tile. Best case scenario, the most common tile is "air" or "empty" so it will probably fit well.
   - [x] Implement a "backtracking" feature that allows the algorithm to backtrack and try a different tile if it gets stuck (i.e. no tiles can be placed in a cell). Utilize use a stack of previous states to accomplish this.
   - [x] Implement Shannon Entropy as a more accurate form of entropy. Shannon Entropy accounts for weighted probabilities of tiles.
-  - [ ] As an *optional* form of tile generation, geared more towards terrain for 2D platformers, have some **pre-collapsed tiles** around the border (specifically thinking of a layer of ground tiles). This would fix issue where ground tiles can be connected to air beneath.
-  - [ ] Have **tile clusters** (composed of 2x2 tiles) which have their own frequency hints and adjacency rules. This would allow for input image patterns to be followed closer. One benefit is that this would fix the issue where blocks are placed too close together in the output.
+  - [ ] For output grids geared more towards terrain for 2D platformers, have some **pre-collapsed cells** around the border, specifically a layer of ground tiles. This would fix the issue where ground tiles can be connected to air beneath.
+  - [ ] Have **tile clusters** (composed of 2x2 tiles) which have their own local constraints relative to other nearby tile clusters. This would allow for input image patterns to be followed more closely. Among other benefits, this would fix the issue where blocks are placed too close together in the output.
 - [ ] ??? Allow the user to upload the tile variant images in *addition* to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development
 
 - Perform analysis on different implementations of WFC to see how they affect the output:
@@ -71,10 +71,6 @@ Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/)
 
 Also, please be aware that your input image size might be too small for the algorithm to generate realistic terrain. With a larger sample size, the algorithm produces better tile connection rules, which results in output images that are closer to your expectations.
 
-
-
 ## Acknowledgements
 
 The original Wave Function Collapse algorithm was created by Maxim Gumin. His GitHub repository can be found [here](https://github.com/mxgmn/WaveFunctionCollapse).
-
-Daniel Shiffman's implementation of WFC was used as a reference for this project. His implementation can be found [here](https://github.com/CodingTrain/Wave-Function-Collapse).
