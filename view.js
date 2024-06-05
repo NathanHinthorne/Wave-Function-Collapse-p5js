@@ -7,7 +7,8 @@
 let analyzeButton, playButton, pauseButton, resetButton,
     dimInput, fileInput, tileSizeInput, tileSizeSlider,
     dimSlider, loadingBar, saveImageButton, saveTilemapButton,
-    githubLink, oscillator, envelope, frameRateSlider;
+    saveRulesButton, githubLink, oscillator, envelope,
+    frameRateSlider;
 
 
 function setupView() {
@@ -95,6 +96,7 @@ function setupView() {
     playButton.position(buttonX, firstButton + 60);
     playButton.mousePressed(handlePlay);
     playButton.elt.innerHTML = '<i class="fas fa-play"></i>'; // Place icon inside the button
+    playButton.style('width', '80px');
     playButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     playButton.class('grayed-out');
 
@@ -103,6 +105,7 @@ function setupView() {
     pauseButton.position(buttonX, firstButton + 120);
     pauseButton.mousePressed(handlePause);
     pauseButton.elt.innerHTML = '<i class="fas fa-pause"></i>'; // Place icon inside the button
+    pauseButton.style('width', '80px');
     pauseButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     pauseButton.class('grayed-out');
 
@@ -111,6 +114,7 @@ function setupView() {
     resetButton.position(buttonX, firstButton + 180);
     resetButton.mousePressed(handleReset);
     resetButton.elt.innerHTML = '<i class="fas fa-undo"></i>'; // Place icon inside the button
+    resetButton.style('width', '80px');
     resetButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     resetButton.class('grayed-out');
 
@@ -160,27 +164,34 @@ function setupView() {
 
     // --- DOWNLOAD BUTTONS ---
 
-    const downloadX = 1150;
-    const downloadY = 510;
+    const downloadX = 1100;
+    const downloadY = 480;
 
     // Create a download image button
     saveImageButton = createButton('Download Image <br>');
     saveImageButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveImageButton.position(downloadX, downloadY);
-    saveImageButton.style('width', '120px');
+    saveImageButton.style('width', '100px');
     saveImageButton.style('font-size', '12px');
-    // saveButton.hide();
     saveImageButton.mousePressed(handleImageDownload);
 
     // Create a download tilemap json button
     saveTilemapButton = createButton('Download Tilemap <br>');
     saveTilemapButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
-    saveTilemapButton.position(downloadX + 150, downloadY);
-    saveTilemapButton.style('width', '120px');
+    saveTilemapButton.position(downloadX + 130, downloadY);
+    saveTilemapButton.style('width', '100px');
     saveTilemapButton.style('font-size', '12px');
-    // saveTilemapButton.hide();
     saveTilemapButton.mousePressed(handleTilemapDownload);
+
+    // create a button to download the tile mappings
+    saveRulesButton = createButton('Download Tile Rules <br>');
+    saveRulesButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
+    saveRulesButton.position(downloadX + 260, downloadY);
+    saveRulesButton.style('width', '100px');
+    saveRulesButton.style('font-size', '12px');
+    saveRulesButton.mousePressed(handleRulesDownload);
     enableDownloadButtons(false);
+
 
 
     // Create GitHub link to the repo
@@ -375,32 +386,61 @@ function handleTilemapDownload() {
         }
     }
 
-    saveTilemap(tilemap, 'tilemap.json');
+    // Manually construct JSON string
+    let jsonStr = "{\n\t\"tilemap\": [\n";
+    tilemap.forEach((row, rowIndex) => {
+        jsonStr += "\t\t[";
+        row.forEach((tile, tileIndex) => {
+            jsonStr += tile;
+            if (tileIndex !== row.length - 1) {
+                jsonStr += ", ";
+            }
+        });
+        jsonStr += (rowIndex !== tilemap.length - 1) ? "],\n" : "]\n";
+    });
+    jsonStr += "\t]\n}";
+
+    downloadJSON(jsonStr, 'tilemap.json');
 }
 
-function saveTilemap(tilemap, filename) {
-    let tilemapJSON = {
-        "tilemap": tilemap
+function handleRulesDownload() {
+    // make json for the adjacency rules and frequency hints of the tiles
+
+    let rules = [];
+    for (let i = 0; i < tileVariants.length; i++) {
+        let tile = tileVariants[i];
+        let rule = {
+            "tile": i,
+            "up neighbors": Array.from(tile.up.entries()),
+            "right neighbors": Array.from(tile.right.entries()),
+            "down neighbors": Array.from(tile.down.entries()),
+            "left neighbors": Array.from(tile.left.entries()),
+        };
+        rules.push(rule);
+    }
+
+    let rulesJSON = {
+        "rules": rules
     };
 
-    let jsonStr = JSON.stringify(tilemapJSON, null, 0); // No indentation
+    // Manually construct JSON string
+    let jsonStr = "{\n\t\"rules\": [\n";
+    rules.forEach((rule, index) => {
+        jsonStr += "\t\t{\n";
+        jsonStr += `\t\t\t"tile": ${rule.tile},\n`;
+        jsonStr += `\t\t\t"up neighbors": ${JSON.stringify(rule["up neighbors"])},\n`;
+        jsonStr += `\t\t\t"right neighbors": ${JSON.stringify(rule["right neighbors"])},\n`;
+        jsonStr += `\t\t\t"down neighbors": ${JSON.stringify(rule["down neighbors"])},\n`;
+        jsonStr += `\t\t\t"left neighbors": ${JSON.stringify(rule["left neighbors"])}\n`;
+        jsonStr += (index !== rules.length - 1) ? "\t\t},\n" : "\t\t}\n";
+    });
+    jsonStr += "\t]\n}";
 
-    // Add a newline and indentation after each inner list in the tilemap array
-    jsonStr = jsonStr.replace(/\],/g, '],\n\t\t');
+    downloadJSON(jsonStr, 'tile-rules.json');
+}
 
-    // Add a newline and indentation after the opening bracket of the tilemap array
-    jsonStr = jsonStr.replace(/"tilemap": \[/, '"tilemap": [\n\t\t');
-
-    // Add a newline and indentation before the closing bracket of the tilemap array
-    jsonStr = jsonStr.replace(/\]\n\}/, '\n\t]\n}');
-
-    // Add a newline after the opening curly brace
-    jsonStr = jsonStr.replace(/\{/, '{\n');
-
-    // Add a newline before the closing curly brace
-    jsonStr = jsonStr.replace(/\}$/, '\n}');
-
-    let blob = new Blob([jsonStr], { type: "application/json" });
+function downloadJSON(json, filename) {
+    let blob = new Blob([json], { type: "application/json" });
     let url = URL.createObjectURL(blob);
 
     let a = document.createElement('a');
@@ -433,11 +473,15 @@ function enableDownloadButtons(isEnabled) {
         saveTilemapButton.removeAttribute('disabled');
         saveImageButton.removeClass('grayed-out');
         saveTilemapButton.removeClass('grayed-out');
+        saveRulesButton.removeAttribute('disabled');
+        saveRulesButton.removeClass('grayed-out');
     } else {
         saveImageButton.attribute('disabled', '');
         saveTilemapButton.attribute('disabled', '');
         saveImageButton.class('grayed-out');
         saveTilemapButton.class('grayed-out');
+        saveRulesButton.attribute('disabled', '');
+        saveRulesButton.class('grayed-out');
     }
 }
 

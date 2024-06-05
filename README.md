@@ -6,14 +6,13 @@ This is a JavaScript implementation of the Wave Function Collapse (WFC) algorith
 
 ## Purpose
 
-Ultimately, my hope for this project is that it would facilitate easy map creation for game devs, where they wouldn't need to spend time hardcoding tile connections rules, and can simply supply an input image that fits their expectations. Further, the **tile rules** themselves could be exported and used for proceedurally generated maps.
+Ultimately, my hope for this project is that it would facilitate easy map creation for game devs, where they wouldn't need to spend time hardcoding tile connection rules, and can simply supply an input image that fits their expectations. Further, the **tile rules** themselves could be exported and used for proceedurally generated maps.
 
 Here are some more specific ideas that support the statement above:
 
 - A game that is partially procedurally generated using WFC (off screen, so players can't see world being made).
   - WFC would be fed a preset input image that contains proper connections between tiles.
 - A game mechanic where the world is created slowly as you progress and the player can influence WHICH cells collapse.
-- A web API which takes an input image as a request and gives an output image as its response.
 
 ## Algorithm
 
@@ -35,13 +34,11 @@ The algorithm works in the following way:
 
     a. The propagation of tiles is done by choosing the cell with the lowest entropy (the cell with the fewest tile options), then collapsing it into a single tile. This process is repeated until the grid is filled.
 
-For a more detailed explanation how the algorithm works and how it produces the desired results, see the [paper](https://drive.google.com/file/d/1-WoEQ621dulmirr-kJOZsOoEZSxZ8T0e/view?usp=sharing) I wrote on the subject.
+For a more detailed explanation how the algorithm works, you may read [this paper I wrote on the subject.](https://drive.google.com/file/d/1-WoEQ621dulmirr-kJOZsOoEZSxZ8T0e/view?usp=sharing)
 
 ## Plans
 
-NOTE: Anything preceeded by "???" is a feature that I'm not sure if I want to implement yet.
-
-- Finish a basic, custom implementation of WFC:
+- Finish a basic implementation of WFC:
   - [x] Parse input image to collect unique tiles
   - [x] Create adjacency rules from connected tiles
   - [x] Create frequency hints from connected tiles
@@ -55,14 +52,18 @@ NOTE: Anything preceeded by "???" is a feature that I'm not sure if I want to im
   - [x] Implement Shannon Entropy as a more accurate form of entropy. Shannon Entropy accounts for weighted probabilities of tiles.
   - [ ] For output grids geared more towards terrain for 2D platformers, have some **pre-collapsed cells** around the border, specifically a layer of ground tiles. This would fix the issue where ground tiles can be connected to air beneath.
   - [ ] Have **tile clusters** (composed of 2x2 tiles) which have their own local constraints relative to other nearby tile clusters. This would allow for input image patterns to be followed more closely. Among other benefits, this would fix the issue where blocks are placed too close together in the output.
-- [ ] ??? Allow the user to upload the tile variant images in *addition* to the input image. The file names from the tile variant images will be used to determine the tile type, which can be used in an exported tilemap for easier use in game development
+  - [ ] Since this version of WFC is geared towards terrain generation, it's probably okay to add some global contraints in addition to the local constraints that already exist between tile variants. Therefore, let the user specify a **category** for any tile variant they choose (e.g. "base ground" and "air"). Ensure these categories have global constraints that must be followed. For example:
+    - **base ground** tiles must be connected to the bottom row of the output.
+    - **air** tiles are artifically added as neighbors to the edge tiles.
 
 - Perform analysis on different implementations of WFC to see how they affect the output:
   - [x] Setup a way to gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
-  - [ ] Test frequency hints vs no frequency hints.
   - [x] Test Shannon entropy vs rough entropy (entropy that's not weighted by tile frequency)
-  - [ ] Test memoization for entropies vs re-calculation of all entropies.
 
+- [ ] Design a web API which takes an input image as a request and gives an output image as its response.
+
+- [ ] Create a button to export the tile connection rules to be used in a game engine.
+  
 ## How to use
 
 Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/) to see the algorithm in action and generate your own images!
