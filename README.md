@@ -10,9 +10,12 @@ Ultimately, my hope for this project is that it would facilitate easy map creati
 
 Here are some more specific ideas that support the statement above:
 
-- A game that is partially procedurally generated using WFC (off screen, so players can't see world being made).
-  - WFC would be fed a preset input image that contains proper connections between tiles.
-- A game mechanic where the world is created slowly as you progress and the player can influence WHICH cells collapse.
+- A open-world 2D game (like Terraria, but with very different terrain) that is procedurally generated using WFC (off screen, so players can't see world being made).
+  - An input image would be run through this WFC demo. This would provide tile rules for a form of WFC built within the game.
+  - World would be generated in chunks, with a "stitching" algorithm that ensures chunks connect properly. This would avoid restarts caused by backtracking and would provide the opportunity to run WFC in parallel.
+  - WFC would be used to generate the **basic terrain**, but another algorithm with simple randomization could add **variation** by swapping these out with appropriate tile variations. This technique would be used for things like trees, rocks, or other decorations that are placed on the terrain.
+  
+- A game mechanic where the world is created slowly as you progress and in clear view of the player. The player can influence WHICH cells collapse.
 
 ## Algorithm
 
@@ -50,11 +53,10 @@ For a more detailed explanation how the algorithm works, you may read [this pape
   - [x] For edge tiles analyzed in the input grid, because some of their neighbors don't exist, let the **most common** tile found in the input grid be the only tile that can be placed next to the edge tile. Best case scenario, the most common tile is "air" or "empty" so it will probably fit well.
   - [x] Implement a "backtracking" feature that allows the algorithm to backtrack and try a different tile if it gets stuck (i.e. no tiles can be placed in a cell). Utilize use a stack of previous states to accomplish this.
   - [x] Implement Shannon Entropy as a more accurate form of entropy. Shannon Entropy accounts for weighted probabilities of tiles.
-  - [ ] For output grids geared more towards terrain for 2D platformers, have some **pre-collapsed cells** around the border, specifically a layer of ground tiles. This would fix the issue where ground tiles can be connected to air beneath.
   - [ ] Have **tile clusters** (composed of 2x2 tiles) which have their own local constraints relative to other nearby tile clusters. This would allow for input image patterns to be followed more closely. Among other benefits, this would fix the issue where blocks are placed too close together in the output.
-  - [ ] Since this version of WFC is geared towards terrain generation, it's probably okay to add some global contraints in addition to the local constraints that already exist between tile variants. Therefore, let the user specify a **category** for any tile variant they choose (e.g. "base ground" and "air"). Ensure these categories have global constraints that must be followed. For example:
-    - **base ground** tiles must be connected to the bottom row of the output.
-    - **air** tiles are artifically added as neighbors to the edge tiles.
+  - [x] Since this version of WFC is geared towards terrain generation, it's probably okay to add some global contraints in addition to the local constraints that already exist between tile variants. Therefore, let the user specify a **behavior** for any tile variant they choose (e.g. "floor" and "empty"). Ensure these categories have global constraints that must be followed. For example:
+    - **floor** tiles must be connected to the bottom row of the output.
+    - **empty** tiles are artifically added as neighbors to the edge tiles.
 
 - Perform analysis on different implementations of WFC to see how they affect the output:
   - [x] Setup a way to gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
@@ -62,7 +64,7 @@ For a more detailed explanation how the algorithm works, you may read [this pape
 
 - [ ] Design a web API which takes an input image as a request and gives an output image as its response.
 
-- [ ] Create a button to export the tile connection rules to be used in a game engine.
+- [x] Create a button to export the tile connection rules so they can be used in a game engine.
   
 ## How to use
 
