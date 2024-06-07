@@ -137,7 +137,9 @@ function parseImage() {
 
 function analyzeTiles() {
   findTileVariants();
-  findNeighbors();
+  findTileNeighbors();
+
+  findClusterNeighbors();
 }
 
 /**
@@ -181,7 +183,7 @@ function findTileVariants() {
 /**
  * Analyze the tiles in the input grid to determine adjacency rules and frequency hints
  */
-function findNeighbors() {
+function findTileNeighbors() {
   const height = inputGrid.length;
   const width = inputGrid[0].length;
 
@@ -282,6 +284,13 @@ function findNeighbors() {
       }
     }
   }
+}
+
+/**
+ * 
+ */
+function findClusterNeighbors() {
+
 }
 
 

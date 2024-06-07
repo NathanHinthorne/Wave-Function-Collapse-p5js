@@ -50,16 +50,25 @@ For a more detailed explanation how the algorithm works, you may read [this pape
   - [x] Create a simple GUI for the user to adjust algorithm parameters
 
 - Tweak algorithm propagation rules to achieve better output:
+
   - [x] For edge tiles analyzed in the input grid, because some of their neighbors don't exist, let the **most common** tile found in the input grid be the only tile that can be placed next to the edge tile. Best case scenario, the most common tile is "air" or "empty" so it will probably fit well.
+  
   - [x] Implement a "backtracking" feature that allows the algorithm to backtrack and try a different tile if it gets stuck (i.e. no tiles can be placed in a cell). Utilize use a stack of previous states to accomplish this.
+  
   - [x] Implement Shannon Entropy as a more accurate form of entropy. Shannon Entropy accounts for weighted probabilities of tiles.
-  - [ ] Have **tile clusters** (composed of 2x2 tiles) which have their own local constraints relative to other nearby tile clusters. This would allow for input image patterns to be followed more closely. Among other benefits, this would fix the issue where blocks are placed too close together in the output.
+  
+  - [ ] Have **tile clusters** (composed of 2x2 tiles) which have their own local constraints relative to other nearby tile clusters. This facilitates the formation of larger patterns in the output image. One way to think of this is that it gives each cell the ability to "see" farther away than just its immediate neighbors before collapsing. This fixes the issue where generated ground tiles don't leave room for player to move. For cave generation, this helps tunnels connect.
+  
   - [x] Since this version of WFC is geared towards terrain generation, it's probably okay to add some global contraints in addition to the local constraints that already exist between tile variants. Therefore, let the user specify a **behavior** for any tile variant they choose (e.g. "floor" and "empty"). Ensure these categories have global constraints that must be followed. For example:
+  
     - **floor** tiles must be connected to the bottom row of the output.
+  
     - **empty** tiles are artifically added as neighbors to the edge tiles.
 
 - Perform analysis on different implementations of WFC to see how they affect the output:
+
   - [x] Setup a way to gather appropriate data for different implementations, like operation counts or running time, and plot these results in an appropriate way (e.g. a line graph).
+  
   - [x] Test Shannon entropy vs rough entropy (entropy that's not weighted by tile frequency)
 
 - [ ] Design a web API which takes an input image as a request and gives an output image as its response.

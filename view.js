@@ -479,7 +479,7 @@ function handleBehaviorButton(behavior) {
     enableBehaviorButtons(false);
 
     // refresh since prev behaviors could be removed
-    findNeighbors();
+    findTileNeighbors();
     initializeOutputGrid();
 }
 
@@ -491,7 +491,7 @@ function handleUndoBehaviorButton() {
     enableBehaviorButtons(false);
 
     // refresh since new behaviors could be added
-    findNeighbors();
+    findTileNeighbors();
     initializeOutputGrid();
 }
 
