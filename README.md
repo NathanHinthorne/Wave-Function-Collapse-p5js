@@ -70,9 +70,14 @@ For a more detailed explanation how the algorithm works, you may read [this pape
 
 Visit the [live demo](https://nathanhinthorne.github.io/Wave-Function-Collapse/) to see the algorithm in action and generate your own images!
 
-:warning: Keep in mind that if you want the algorithm to pick up patterns between tiles, ensure you have some **duplicate tiles** in the image (i.e. tiles composed of the exact same pixels).
+---
+:warning: **WARNING**
+
+Keep in mind that if you want the algorithm to pick up patterns between tiles, ensure you have some **duplicate tiles** in the image (i.e. tiles composed of the exact same pixels).
 
 Also, please be aware that your input image size might be too small for the algorithm to generate realistic terrain. With a larger sample size, the algorithm produces better tile connection rules, which results in output images that are closer to your expectations.
+
+---
 
 ## Acknowledgements
 
