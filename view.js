@@ -429,6 +429,8 @@ function handleRulesDownload() {
     // make json for the adjacency rules and frequency hints of the tiles
 
     let rules = [];
+    let behaviors = {};
+
     for (let i = 0; i < tileVariants.length; i++) {
         let tile = tileVariants[i];
         let rule = {
@@ -439,14 +441,29 @@ function handleRulesDownload() {
             "left neighbors": Array.from(tile.left.entries()),
         };
         rules.push(rule);
+
+        // Group tiles by behavior
+        if (tile.behavior) {
+            if (!behaviors[tile.behavior]) {
+                behaviors[tile.behavior] = [];
+            }
+            behaviors[tile.behavior].push(i);
+        }
     }
 
-    let rulesJSON = {
-        "rules": rules
-    };
-
     // Manually construct JSON string
-    let jsonStr = "{\n\t\"rules\": [\n";
+    let jsonStr = "{\n";
+
+    // Add behaviors to JSON string
+    jsonStr += "\t\"behaviors\": {\n";
+    Object.keys(behaviors).forEach((behavior, index) => {
+        jsonStr += `\t\t"${behavior}": ${JSON.stringify(behaviors[behavior])}`;
+        jsonStr += (index !== Object.keys(behaviors).length - 1) ? ",\n" : "\n";
+    });
+    jsonStr += "\t},\n";
+
+    // Add rules to JSON string
+    jsonStr += "\t\"rules\": [\n";
     rules.forEach((rule, index) => {
         jsonStr += "\t\t{\n";
         jsonStr += `\t\t\t"tile": ${rule.tile},\n`;
