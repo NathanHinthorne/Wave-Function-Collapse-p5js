@@ -6,13 +6,23 @@
  */
 class Tile {
   constructor(img) {
+
+    /** The image of the tile */
     this.img = img;
+
+    /** The index of the tile in the tileset */
     this.index = null;
+
+    /** The hash of the tile's pixel data */
     this.hash = null;
+
+    /** Optional field. Tile is treated in a special way depending on the behavior. */
+    this.behavior = null;
+
 
     // Maps of tile indices to their frequency,
     // This rolls adjacency rules and frequency hints into one
-    
+
     /** A Map where the keys are the indices of available tiles to appear above this one, and the values are their corresponding frequencies */
     this.up = new Map();
 

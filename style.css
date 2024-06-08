@@ -1,5 +1,11 @@
 body {
     background-color: #555;
+
+    /* take away user ability to select text */
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 button {

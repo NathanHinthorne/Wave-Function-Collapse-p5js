@@ -5,6 +5,11 @@
  */
 class Cell {
 
+  /**
+   * @param {number[]} tileIndices - The indices of the tiles that can be placed in this cell
+   * @param {number} x - The x position of the cell in the output grid
+   * @param {number} y - The y position of the cell in the output grid
+   */
   constructor(tileIndices, x, y) {
     /** The maximum entropy this cell could have over the course of the algorithm */
     this.maxEntropy = tileIndices.length;
@@ -109,6 +114,9 @@ class Cell {
     this.collapsed = true;
   }
 
+  /**
+   * @param {number} tileIndex - The index of the tile to exclude from the cell's options
+   */
   exclude(tileIndex) {
     if (this.collapsed) {
       throw new Error('Cell has already been collapsed');

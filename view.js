@@ -7,8 +7,14 @@
 let analyzeButton, playButton, pauseButton, resetButton,
     dimInput, fileInput, tileSizeInput, tileSizeSlider,
     dimSlider, loadingBar, saveImageButton, saveTilemapButton,
-    saveRulesButton, githubLink, oscillator, envelope,
-    frameRateSlider;
+    saveRulesButton, githubLink,
+    frameRateSlider, behaviorFloorButton, behaviorEmptyButton, behaviorResetButton;
+
+let popSfx1 = null;
+let popSfx2 = null;
+let popSfx3 = null;
+
+let tileVariantDisplays = [];
 
 
 function setupView() {
@@ -28,20 +34,9 @@ function setupView() {
 
 
     // --- SFX ---
-    // oscillator = new p5.Oscillator('sine');
-    // envelope = new p5.Envelope(); // Create a new envelope
-    // const attackTime = 0.1;
-    // const decayTime = 0.1;
-    // const susPercent = 0.2;
-    // const releaseTime = 0.5;
-    // const attackLevel = 1.0;
-    // const releaseLevel = 0;
-
-    // envelope.setADSR(attackTime, decayTime, susPercent, releaseTime);
-    // envelope.setRange(attackLevel, releaseLevel);
-
-    // oscillator.amp(envelope);  // Use the envelope to control the amplitude
-
+    popSfx1 = loadSound('assets/sfx/high-pop.mp3');
+    popSfx2 = loadSound('assets/sfx/low-pop1.mp3');
+    popSfx3 = loadSound('assets/sfx/low-pop2.mp3');
 
 
     // --- INPUT IMAGE PARAMETERS ---
@@ -140,18 +135,10 @@ function setupView() {
     });
     dimSlider.hide();
 
-    // Create a loading bar for the progress of the algorithm
-    // loadingBar = createDiv('');
-    // loadingBar.position(100, 650);
-    // loadingBar.style('width', '1000px');
-    // loadingBar.style('height', '20px');
-    // loadingBar.class('loading-bar');
-
-
     // --- FRAME RATE SLIDER ---
     const frameRateX = 740;
     const frameRateY = 460;
-    frameRateSlider = createSlider(1, 60, 30);
+    frameRateSlider = createSlider(1, 60, 60);
     frameRateSlider.position(frameRateX, frameRateY);
     frameRateSlider.style('width', '200px');
     frameRateSlider.input(() => {
@@ -165,10 +152,10 @@ function setupView() {
     // --- DOWNLOAD BUTTONS ---
 
     const downloadX = 1100;
-    const downloadY = 480;
+    const downloadY = 475;
 
     // Create a download image button
-    saveImageButton = createButton('Download Image <br>');
+    saveImageButton = createButton('Image <br>');
     saveImageButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveImageButton.position(downloadX, downloadY);
     saveImageButton.style('width', '100px');
@@ -176,7 +163,7 @@ function setupView() {
     saveImageButton.mousePressed(handleImageDownload);
 
     // Create a download tilemap json button
-    saveTilemapButton = createButton('Download Tilemap <br>');
+    saveTilemapButton = createButton('Tilemap <br>');
     saveTilemapButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveTilemapButton.position(downloadX + 130, downloadY);
     saveTilemapButton.style('width', '100px');
@@ -184,7 +171,7 @@ function setupView() {
     saveTilemapButton.mousePressed(handleTilemapDownload);
 
     // create a button to download the tile mappings
-    saveRulesButton = createButton('Download Tile Rules <br>');
+    saveRulesButton = createButton('Tile Rules <br>');
     saveRulesButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveRulesButton.position(downloadX + 260, downloadY);
     saveRulesButton.style('width', '100px');
@@ -193,6 +180,37 @@ function setupView() {
     enableDownloadButtons(false);
 
 
+    // --- BEHAVIOR BUTTONS ---
+    const behaviorX = 1088;
+    const behaviorY = 630;
+
+    behaviorFloorButton = createButton('Apply');
+    behaviorFloorButton.style('font-size', '10px');
+    behaviorFloorButton.style('height', '40px');
+    behaviorFloorButton.elt.innerHTML += ' <i class="fas fa-check"></i>'; // Place icon inside the button
+    behaviorFloorButton.position(behaviorX, behaviorY);
+    behaviorFloorButton.mousePressed(() => handleBehaviorButton('floor'));
+
+    behaviorEmptyButton = createButton('Apply');
+    behaviorEmptyButton.style('font-size', '10px');
+    behaviorEmptyButton.style('height', '40px');
+    behaviorEmptyButton.elt.innerHTML += ' <i class="fas fa-check"></i>'; // Place icon inside the button
+    behaviorEmptyButton.position(behaviorX + 110, behaviorY);
+    behaviorEmptyButton.mousePressed(() => handleBehaviorButton('empty'));
+
+    behaviorResetButton = createButton('Reset');
+    behaviorResetButton.style('font-size', '10px');
+    behaviorResetButton.style('height', '40px');
+    behaviorResetButton.class('red-button')
+    behaviorResetButton.elt.innerHTML += ' <i class="fas fa-undo"></i>'; // Place icon inside the button
+    behaviorResetButton.position(behaviorX + 330, behaviorY);
+    behaviorResetButton.mousePressed(handleUndoBehaviorButton);
+    behaviorResetButton.hide();
+
+    enableBehaviorButtons(false);
+
+
+    // --- OUTSIDE LINKS ---
 
     // Create GitHub link to the repo
     githubLink = createA('https://github.com/NathanHinthorne/Wave-Function-Collapse?tab=readme-ov-file', 'GitHub Repository ');
@@ -220,6 +238,8 @@ function setupView() {
 function analyze() {
     analyzeTiles();
     imageIsAnalyzed = true;
+    initializeOutputGrid();
+    behaviorResetButton.show();
     enableEditButtons(true);
 }
 
@@ -275,6 +295,7 @@ function updateTileSize() {
             tilePixelSize = parseFloat(tileSizeInput.value());
 
             parseImage();
+            behaviorResetButton.hide()
             imageIsAnalyzed = false;
             outputIsInitialized = false;
             enableEditButtons(false);
@@ -338,6 +359,7 @@ function updateInputFromSlider(input, slider) {
 
 function handleFile(file) {
     print("user submitted file: ", file.name);
+    behaviorResetButton.hide()
     imageIsAnalyzed = false;
     outputIsInitialized = false;
     enableEditButtons(false);
@@ -449,6 +471,30 @@ function downloadJSON(json, filename) {
     a.click();
 }
 
+function handleBehaviorButton(behavior) {
+    selectedTileVariants.forEach(index => {
+        tileVariants[index].behavior = behavior;
+    });
+    selectedTileVariants = [];
+    enableBehaviorButtons(false);
+
+    // refresh since prev behaviors could be removed
+    findTileNeighbors();
+    initializeOutputGrid();
+}
+
+function handleUndoBehaviorButton() {
+    selectedTileVariants = [];
+    tileVariantDisplays.forEach(display => {
+        tileVariants[display.index].behavior = null;
+    });
+    enableBehaviorButtons(false);
+
+    // refresh since new behaviors could be added
+    findTileNeighbors();
+    initializeOutputGrid();
+}
+
 function enableEditButtons(isEnabled) {
     if (isEnabled) {
         playButton.removeAttribute('disabled');
@@ -469,19 +515,35 @@ function enableEditButtons(isEnabled) {
 
 function enableDownloadButtons(isEnabled) {
     if (isEnabled) {
-        saveImageButton.removeAttribute('disabled');
-        saveTilemapButton.removeAttribute('disabled');
-        saveImageButton.removeClass('grayed-out');
-        saveTilemapButton.removeClass('grayed-out');
-        saveRulesButton.removeAttribute('disabled');
-        saveRulesButton.removeClass('grayed-out');
+        // saveImageButton.removeAttribute('disabled');
+        // saveTilemapButton.removeAttribute('disabled');
+        // saveRulesButton.removeAttribute('disabled');
+        // saveImageButton.removeClass('grayed-out');
+        // saveTilemapButton.removeClass('grayed-out');
+        // saveRulesButton.removeClass('grayed-out');
+        saveImageButton.show();
+        saveTilemapButton.show();
+        saveRulesButton.show();
     } else {
-        saveImageButton.attribute('disabled', '');
-        saveTilemapButton.attribute('disabled', '');
-        saveImageButton.class('grayed-out');
-        saveTilemapButton.class('grayed-out');
-        saveRulesButton.attribute('disabled', '');
-        saveRulesButton.class('grayed-out');
+        // saveImageButton.attribute('disabled', '');
+        // saveTilemapButton.attribute('disabled', '');
+        // saveRulesButton.attribute('disabled', '');
+        // saveImageButton.class('grayed-out');
+        // saveTilemapButton.class('grayed-out');
+        // saveRulesButton.class('grayed-out');
+        saveImageButton.hide();
+        saveTilemapButton.hide();
+        saveRulesButton.hide();
+    }
+}
+
+function enableBehaviorButtons(isEnabled) {
+    if (isEnabled) {
+        behaviorFloorButton.show();
+        behaviorEmptyButton.show();
+    } else {
+        behaviorFloorButton.hide();
+        behaviorEmptyButton.hide();
     }
 }
 
@@ -494,6 +556,7 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
 
     fill(0);
     textSize(14);
+    textStyle(BOLD);
     text("Tile Variants", cardX + 10, cardY + 20);
 
     // show the image associated with each tile variant, along with its index on the canvas
@@ -523,7 +586,22 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
 
         image(tile.img, tileXPos, tileYPos, tileDisplaySize, tileDisplaySize);
 
+        // Store tile variant display information
+        tileVariantDisplays[i] = {
+            x: tileXPos,
+            y: tileYPos,
+            width: tileDisplaySize,
+            height: tileDisplaySize,
+            index: tile.index,
+        };
+
         push(); // Save current drawing style settings and transformations
+
+        if (selectedTileVariants.includes(tile.index)) {
+            // tile is currently selected
+            fill(255, 255, 0, 128); // translucent yellow
+            rect(tileXPos, tileYPos, tileDisplaySize, tileDisplaySize);
+        }
 
         // Draw the tile index below the tile image
         fill(0);
@@ -571,6 +649,46 @@ function displayInputGrid(cardX, cardY, cardWidth, cardHeight) {
             const xPos = cardX + x * (tileDisplaySize + spacing) + margin;
             const yPos = cardY + y * (tileDisplaySize + spacing) + margin;
             image(tile.img, xPos, yPos, tileDisplaySize, tileDisplaySize);
+
+            // if tile is selected, draw a yellow rectangle around it
+            if (selectedTileVariants.includes(tile.index)) {
+                // approach #1 - pulse
+                const pulse = sin(frameCount * 0.08) * 3;
+                strokeWeight(10 + pulse);
+                noFill();
+                stroke(255, 255, 0, 128); // translucent yellow
+                rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+
+                // approach #2 - fill
+                // fill(255, 255, 0, 128); // translucent yellow
+                // rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+            }
+
+            if (imageIsAnalyzed) {
+                // get the tile variant, not just the individual tile
+                const tileVariant = tileVariants[tile.index];
+
+                if (tileVariant.behavior) {
+                    push();
+
+                    // Draw a colored rectangle to indicate the behavior
+                    if (tileVariant.behavior === 'floor') {
+                        fill(50, 50, 255, 100); // translucent blue
+                    } else if (tileVariant.behavior === 'empty') {
+                        fill(215, 130, 215, 100); // translucent pink
+                    }
+                    rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
+
+                    // text to indicate the behavior
+                    // fill(0);
+                    // textSize(10);
+                    // const txtWidth = textWidth(tileVariant.behavior);
+                    // const txtHeight = 10; // Approximate text height given the text size
+                    // text(tileVariant.behavior, xPos + tileDisplaySize / 2 - txtWidth / 2, yPos + tileDisplaySize / 2 + txtHeight / 2);
+
+                    pop();
+                }
+            }
 
             // Draw black lines around the tile
             stroke(0);
@@ -659,12 +777,49 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
     pop();
 }
 
-function playBeepSFX(freq, duration) {
-    console.log('Playing beep at frequency: ' + freq);
-    oscillator.freq(freq);
-    oscillator.start();
-    envelope.play(oscillator, 0, duration);
+function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
+    // Draw a light gray background behind the input grid
+    fill(230);
+    noStroke();
+    rect(cardX, cardY, cardWidth, cardHeight, 2);
+
+    // card title
+    fill(0);
+    textSize(14);
+    textStyle(BOLD);
+    text("Tile Behaviors", cardX + 10, cardY + 20);
+
+    const padding = 20;
+    const backgroundWidth = 80;
+
+    // backgrounds for button titles
+    fill(50, 50, 255, 128); // translucent blue
+    rect(cardX + padding + 10, cardY + 40, backgroundWidth, 30);
+
+    fill(215, 130, 215, 128); // translucent pink
+    rect(cardX + padding + 120, cardY + 40, backgroundWidth, 30);
+
+    // button titles
+    push();
+    fill(0);
+    textSize(12);
+    textAlign(CENTER, CENTER); // center the text
+    text("Floor", cardX + padding + 10 + backgroundWidth / 2, cardY + 40 + 30 / 2);
+    text("Empty", cardX + padding + 120 + backgroundWidth / 2, cardY + 40 + 30 / 2);
+    pop();
+
+    if (selectedTileVariants.length === 0) {
+        // display header text "Select tile variants to categorize"
+        push();
+        fill(0);
+        textSize(16);
+        textStyle('italic');
+        text("Select some tile variants", cardX + 260, cardY + 10, 300, 50);
+
+        pop();
+    }
 }
+
 
 function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
     // Create a card for the getting started section
@@ -686,8 +841,39 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
         '3. Click "Analyze" to identify tile variants and the patterns between them. <br><br>' +
         '4. Set the dimensions of the output grid. <br><br>' +
         '5. Click "Play" to generate the tilemap. <br><br>' +
-        '6. Click "Download Image" to save the output image or "Download Tilemap" to save the tilemap as a JSON file.');
+        '6. Click "Image" to save the output image. <br>Click "Tilemap" to save the tilemap as JSON. <br>Click "Tile Rules" to save the tile rules as JSON.');
     helpText.parent(card);
+}
+
+// Array to store selected tile variants
+let selectedTileVariants = [];
+
+function mousePressed() {
+    // Loop through tileVariantDisplays
+    for (const tileDisplay of tileVariantDisplays) {
+
+        // Check if the mouse click was inside the bounds of the tile variant
+        if (mouseX > tileDisplay.x && mouseX < tileDisplay.x + tileDisplay.width &&
+            mouseY > tileDisplay.y && mouseY < tileDisplay.y + tileDisplay.height) {
+
+            if (selectedTileVariants.includes(tileDisplay.index)) {
+                // If the tile variant was already selected, remove it from the list
+                selectedTileVariants = selectedTileVariants.filter(index => index !== tileDisplay.index);
+            } else {
+                // If the tile variant was not already selected, add it to the list
+                selectedTileVariants.push(tileDisplay.index);
+            }
+
+            // Stop checking after the first match
+            break;
+        }
+    }
+
+    if (selectedTileVariants.length > 0) {
+        enableBehaviorButtons(true);
+    } else {
+        enableBehaviorButtons(false);
+    }
 }
 
 // function mouseClicked() {
@@ -741,6 +927,23 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
 //     }
 // }
 
+
+function playPopSfx() {
+    if (!popSfx1.isLoaded() || !popSfx2.isLoaded() || !popSfx3.isLoaded()) {
+        return;
+    }
+
+    // chance to play a pop sound effect
+    let rand = Math.random();
+    if (rand < 0.33) {
+        popSfx1.play();
+    } else if (rand < 0.66) {
+        popSfx2.play();
+    } else {
+        popSfx3.play();
+
+    }
+}
 
 
 /*

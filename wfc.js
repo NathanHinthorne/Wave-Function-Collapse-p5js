@@ -4,14 +4,14 @@
  * @author Nathan Hinthorne
  */
 
-/** The types of tiles that can be used in the output grid */
-let tileVariants = [];
-
 /** 2D Array. Contains tile objects taken from the input image */
 let inputGrid = [];
 
 /** 2D Array. Contains cells that get collapsed into tiles */
 let outputGrid = [];
+
+/** The types of tiles that can be used in the output grid */
+let tileVariants = [];
 
 
 // Backtracking variables
@@ -65,17 +65,20 @@ let outputIsComplete = false;
 
 
 function preload() {
-  inputImage = loadImage('sample_input/demo4.png');
+  inputImage = loadImage('assets/sample_input/demo8.png');
 }
 
 function setup() {
   parseImage(); // parse the example image
   setupView();
 
-  frameRate(30);
+  frameRate(60);
 
   myLogger("Grid size, Backtracks");
 }
+
+
+
 
 function draw() {
   noSmooth();
@@ -87,6 +90,10 @@ function draw() {
 
   if (imageIsAnalyzed) {
     displayTileVariants(469, 500, 570, 180);
+
+    // if (optionsIsPressed) {
+    displayBehaviors(1048, 550, 450, 130);
+    // }
   }
 
   if (outputIsInitialized) {
@@ -96,17 +103,6 @@ function draw() {
   if (outputIsGenerating) {
     populateOutputGrid();
   }
-
-  // if (outputIsComplete) {
-  //   setup(); // restart setup for next test
-  //   startOver(); // place cells back in the grid
-  //   outputIsComplete = false;
-
-  //   totalProgramExecutions++;
-  //   if (totalProgramExecutions % 10 == 0) {
-  //     dim++;
-  //   }
-  // }
 }
 
 
@@ -133,10 +129,7 @@ function parseImage() {
 
 function analyzeTiles() {
   findTileVariants();
-  findNeighbors();
-
-  console.log("Tile analysis complete");
-  console.log("Tile connections found:", tileVariants);
+  findTileNeighbors();
 }
 
 /**
@@ -180,9 +173,10 @@ function findTileVariants() {
 /**
  * Analyze the tiles in the input grid to determine adjacency rules and frequency hints
  */
-function findNeighbors() {
+function findTileNeighbors() {
   const height = inputGrid.length;
   const width = inputGrid[0].length;
+
 
   const mostCommonTile = tileVariants.reduce((mostCommonTile, tile) => {
     if (tile.totalFrequencyInGrid > mostCommonTile.totalFrequencyInGrid) {
@@ -190,6 +184,22 @@ function findNeighbors() {
     }
     return mostCommonTile;
   });
+
+  const airTiles = tileVariants.reduce((airTiles, tile) => {
+    if (tile.behavior === "air") {
+      airTiles.push(tile);
+    }
+    return airTiles;
+  }, []);
+
+  let edgeNeighbors = [];
+
+  // check for tiles categorized as "air". Let those override the most common tile
+  if (airTiles.length > 0) {
+    edgeNeighbors = airTiles;
+  } else {
+    edgeNeighbors.push(mostCommonTile);
+  }
 
   // create adjacency rules and frequency hints
   for (let y = 0; y < height; y++) {
@@ -207,13 +217,10 @@ function findNeighbors() {
         }
       }
       else {
-        // Approach 1: there's no tile above us, so we can be adjacent to any tile
-        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
-        //   tileVariant.up.set(otherTileIndex, 1);
-        // }
-
-        // Approach 2: there's no tile above us, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
-        tileVariant.up.set(mostCommonTile.index, 1);
+        // there's no tile above us, so let's put artificial constraints on the top side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.up.set(edgeNeighbor.index, 1);
+        }
       }
 
       if (x < width - 1) { // there's a tile to our right
@@ -226,13 +233,10 @@ function findNeighbors() {
         }
       }
       else {
-        // Approach 1: there's no tile to our right, so we can be adjacent to any tile
-        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
-        //   tileVariant.right.set(otherTileIndex, 1);
-        // }
-
-        // Approach 2: there's no tile to our right, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
-        tileVariant.right.set(mostCommonTile.index, 1);
+        // there's no tile to our right, so let's put artificial constraints on the right side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.right.set(edgeNeighbor.index, 1);
+        }
       }
 
       if (y < height - 1) { // there's a tile below us
@@ -245,13 +249,10 @@ function findNeighbors() {
         }
       }
       else {
-        // Approach 1: there's no tile below us, so we can be adjacent to any tile
-        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
-        //   tileVariant.down.set(otherTileIndex, 1);
-        // }
-
-        // Approach 2: there's no tile below us, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
-        tileVariant.down.set(mostCommonTile.index, 1);
+        // there's no tile below us, so let's put artificial constraints on the bottom side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.down.set(edgeNeighbor.index, 1);
+        }
       }
 
       if (x > 0) { // there's a tile to our left
@@ -264,13 +265,10 @@ function findNeighbors() {
         }
       }
       else {
-        // Approach 1: there's no tile to our left, so we can be adjacent to any tile
-        // for (let otherTileIndex = 0; otherTileIndex < tileVariants.length; otherTileIndex++) {
-        //   tileVariant.left.set(otherTileIndex, 1);
-        // }
-
-        // Approach 2: there's no tile to our left, so let's say we can be adjacent ONLY the most COMMON TILE from the input grid
-        tileVariant.left.set(mostCommonTile.index, 1);
+        // there's no tile to our left, so let's put artificial constraints on the left side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.left.set(edgeNeighbor.index, 1);
+        }
       }
     }
   }
@@ -282,8 +280,11 @@ function findNeighbors() {
  */
 function initializeOutputGrid() {
   outputGrid = []; // Clear the output grid
+
   totalBacktracks = 0;
   totalCycleCount = 1;
+
+  const floorTiles = tileVariants.filter((tile) => tile.behavior == 'floor');
 
   // Create cell for each spot on the grid
   for (let y = 0; y < dim; y++) { //TODO change this when dims are not equal (not a square grid)
@@ -292,6 +293,13 @@ function initializeOutputGrid() {
       // pass in the indices of the tile variants
       const tileIndices = tileVariants.map(tile => tile.index);
       outputGrid[y][x] = new Cell(tileIndices, x, y);
+
+      // Exclude floor tiles from the options of every cell EXCEPT bottom row
+      if (y < dim - 1) {
+        for (const floorTile of floorTiles) {
+          outputGrid[y][x].exclude(floorTile.index);
+        }
+      }
     }
   }
 
@@ -316,7 +324,7 @@ function restartOutputGrid() {
 }
 
 /**
- * Collapsing a cell into a single tile in a way which respects the local constraints.
+ * Collapses a cell into a single tile in a way which respects the local constraints.
  */
 function populateOutputGrid() {
 
@@ -343,13 +351,7 @@ function populateOutputGrid() {
     return;
   }
 
-  // if (frameCount % 2 === 0) {
-  //   // Play sine wave sfx higher in pitch as the grid gets closer to completion
-  //   const freq = map(uncollapsedCells.length, 0, dim * dim, 2000, 500);
-  //   const duration = 0.1;
-  //   playBeepSFX(freq, duration);
-  // }
-
+  // playPopSfx();
 
   /*
   ========================================================================
