@@ -63,7 +63,7 @@ For a more detailed explanation how the algorithm works, you may read [this pape
       - Can cause a snowballing effect where the same tile gets put everywhere.
       - Might limit the diversity of patterns in the output image,
   
-  - [ ] If the tile cluster idea fails, try adding **distant neighbors** which are neighbor tiles that are 2 spaces away instead of 1. These distant neighbors will have less influence (carry less weight) than immediate neighbors. This approach accomplishes *nearly* the same goal as tile clusters, but is easier to code and has a higher likelyhood of success.
+  - [x] If the tile cluster idea fails, try adding **distant neighbors** which are neighbor tiles that are 2 spaces away instead of 1. These distant neighbors will have less influence (carry less weight) than immediate neighbors. This approach accomplishes *nearly* the same goal as tile clusters, but is easier to code and has a higher likelyhood of success.
     - Cons:
       - Cares too much about the direction of previously placed tiles (i.e. a cell might be constrained to a specific tile in a specific direction). This could be helpful is some circumstances, but most of the time we simply want to clump similar tiles together. NOTE: This should be possible to fix by simply lumping all distant neighbors from all directions into a single map of frequency hints.
 
