@@ -20,6 +20,8 @@ let uniqueClusters = []
 /** 2D Array. Contains all clusters in the input grid */
 let inputClusters = [];
 
+const clusterWeight = 1;
+
 /*
  When two clusters composed of the same dominant tile are found next to each other, we've identified a pattern.
 
@@ -584,8 +586,11 @@ function populateOutputGrid() {
   backtrackAttempts = 0; // reset the backtrack counter
 
 
-
-  // step 3.5 - influence the cell's tile options based on the cluster patterns
+  /*
+  ========================================================================
+  Step 3.5: Influence the cell's tile options based on the cluster patterns
+  ========================================================================
+  */
   if (cell.y > 0 && cell.x > 0 && cell.y < dim - 1 && cell.x < dim - 1) {
     const cluster = inputClusters[cell.y][cell.x];
 
@@ -597,28 +602,28 @@ function populateOutputGrid() {
       for (const [tileIndex, frequency] of uniqueCluster.up) {
         if (cell.options.has(tileIndex)) {
           const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + frequency / 10);
+          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
         }
       }
 
       for (const [tileIndex, frequency] of uniqueCluster.right) {
         if (cell.options.has(tileIndex)) {
           const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + frequency / 10);
+          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
         }
       }
 
       for (const [tileIndex, frequency] of uniqueCluster.down) {
         if (cell.options.has(tileIndex)) {
           const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + frequency / 10);
+          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
         }
       }
 
       for (const [tileIndex, frequency] of uniqueCluster.left) {
         if (cell.options.has(tileIndex)) {
           const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + frequency / 10);
+          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
         }
       }
 
