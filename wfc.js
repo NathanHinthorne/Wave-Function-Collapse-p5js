@@ -13,75 +13,6 @@ let outputGrid = [];
 /** The types of tiles that can be used in the output grid */
 let tileVariants = [];
 
-/** Every unique cluster found in the input grid. Clusters are considered the same if they have the same dominant tile. 
- * Note: Not all tile variants will be represented in the list of clusters. */
-let uniqueClusters = []
-
-/** 2D Array. Contains all clusters in the input grid */
-let inputClusters = [];
-
-const clusterWeight = 1;
-
-/*
- When two clusters composed of the same dominant tile are found next to each other, we've identified a pattern.
-
- To make use of this pattern, look at all tiles in cluster radius of the current cell (this becomes a new cluster).
- If new cluster is solid, take its dominant tile and find the frequency of which neighbors it can have. Let this 
- frequency be a factor in the current cell's tile options.
-
- This is different than having distant neighbors because tile clusters don't care about DIRECTION (i.e. they won't cause 
-  a cell to be constrained to a specific tile in a specific direction). Instead, they care about the tile itself and its
-  frequency in the cluster.
-
-  Reasons to have clusters:
-  So a cell can "see" multiple tiles that were previously placed before it collapses.
-  To "go with the flow". If WFC begins collapsing cells in a certain way, it should
-  stick to that pattern for a little bit. This is especially useful for generating tunnels in caves.
-
-
- when collapsing a cell: need a way to decide which should overrule the other, cluster patterns or tile patterns? 
-                        should they combine like with frequencies to result in a decision?
- */
-
-
-
-/* ChatGPT reponse on above:
-
-The idea of using tile clusters to identify patterns and 
-influence the tile selection process seems like a good approach 
-to enhance the Wave Function Collapse algorithm. It can 
-potentially improve the output by making it more closely 
-resemble the input patterns.
-
-Here are some thoughts on the comments in your code:
-
-Identifying Patterns: The idea of identifying patterns 
-based on dominant tiles in clusters is a good one. This 
-can help to capture larger structures in the input 
-pattern that might be missed when looking at individual tiles.
-
-Cluster Influence: Using the frequency of neighboring 
-tiles of the dominant tile in a solid cluster to influence 
-the tile options for a cell is a good way to incorporate 
-the cluster information into the tile selection process. 
-This can help to ensure that the output pattern follows 
-the input pattern more closely.
-
-Direction vs Frequency: The distinction between distant 
-neighbors (which care about direction) and clusters (which 
-care about tile frequency) is an important one. This 
-can allow the algorithm to capture different types of 
-patterns in the input.
-
-Collapsing a Cell: The question of how to combine the 
-influence of cluster patterns and tile patterns when 
-collapsing a cell is a key one. One approach could be 
-to combine them like frequencies, as you suggested. 
-Another approach could be to use a weighting system, 
-where you assign different weights to the cluster 
-pattern and the tile pattern based on their importance.
-*/
-
 
 // Backtracking variables
 
@@ -199,9 +130,6 @@ function parseImage() {
 function analyzeTiles() {
   findTileVariants();
   findTileNeighbors();
-
-  findUniqueClusters();
-  findClusterNeighbors();
 }
 
 /**
@@ -346,118 +274,6 @@ function findTileNeighbors() {
   }
 }
 
-/**
- * Find all unique tile clusters in the input grid.
- */
-function findUniqueClusters() {
-  inputClusters = [];
-  uniqueClusters = [];
-
-  const scannedClusters = new Set();
-
-  const width = inputGrid[0].length;
-  const height = inputGrid.length;
-
-  for (let y = 1; y < height - 1; y++) {
-    inputClusters[y] = [];
-    for (let x = 1; x < width - 1; x++) {
-
-      const cluster = new TileCluster([
-        [inputGrid[y - 1][x - 1], inputGrid[y - 1][x], inputGrid[y - 1][x + 1]],
-        [inputGrid[y][x - 1], inputGrid[y][x], inputGrid[y][x + 1]],
-        [inputGrid[y + 1][x - 1], inputGrid[y + 1][x], inputGrid[y + 1][x + 1]]
-      ]);
-
-      inputClusters[y][x] = cluster;
-
-      if (cluster.isSolid()) { // throw out clusters that are not solid
-        if (!scannedClusters.has(cluster.dominantTileIndex)) {
-          scannedClusters.add(cluster.dominantTileIndex);
-          uniqueClusters[cluster.dominantTileIndex] = cluster;
-        }
-      }
-    }
-  }
-  console.log(inputClusters);
-
-}
-
-/**
- * Find the neighboring clusters of a cluster at a given x and y coordinate
- */
-function findClusterNeighbors() {
-  const width = inputGrid[0].length;
-  const height = inputGrid.length;
-
-  for (let y = 1; y < height - 1; y++) {
-    for (let x = 1; x < width - 1; x++) {
-      const cluster = inputClusters[y][x]; // the cluster we're looking at
-
-      if (!cluster.isSolid()) {
-        continue;
-      }
-
-      // we have a solid cluster, so let's modify it
-      const uniqueCluster = uniqueClusters[cluster.dominantTileIndex]; // the cluster to modify
-
-      if (y > 2) { // there's a cluster above us
-        const upNeighbor = inputClusters[y - 1][x];
-
-        if (upNeighbor.isSolid()) {
-          if (!uniqueCluster.up.has(upNeighbor.dominantTileIndex)) {
-            uniqueCluster.up.set(upNeighbor.dominantTileIndex, 1);
-          } else {
-            const upNeighborFrequency = uniqueCluster.up.get(upNeighbor.dominantTileIndex);
-            uniqueCluster.up.set(upNeighbor.dominantTileIndex, upNeighborFrequency + 1);
-          }
-        }
-      }
-
-      if (x < width - 3) { // there's a cluster to our right
-        const rightNeighbor = inputClusters[y][x + 1];
-
-        if (rightNeighbor.isSolid()) {
-          if (!uniqueCluster.right.has(rightNeighbor.dominantTileIndex)) {
-            uniqueCluster.right.set(rightNeighbor.dominantTileIndex, 1);
-          } else {
-            const rightNeighborFrequency = uniqueCluster.right.get(rightNeighbor.dominantTileIndex);
-            uniqueCluster.right.set(rightNeighbor.dominantTileIndex, rightNeighborFrequency + 1);
-          }
-        }
-      }
-
-      if (y < height - 3) { // there's a cluster below us
-        const downNeighbor = inputClusters[y + 1][x];
-
-        if (downNeighbor.isSolid()) {
-          if (!uniqueCluster.down.has(downNeighbor.dominantTileIndex)) {
-            uniqueCluster.down.set(downNeighbor.dominantTileIndex, 1);
-          } else {
-            const downNeighborFrequency = uniqueCluster.down.get(downNeighbor.dominantTileIndex);
-            uniqueCluster.down.set(downNeighbor.dominantTileIndex, downNeighborFrequency + 1);
-          }
-        }
-      }
-
-      if (x > 2) { // there's a cluster to our left
-        const leftNeighbor = inputClusters[y][x - 1];
-
-        if (leftNeighbor.isSolid()) {
-          if (!uniqueCluster.left.has(leftNeighbor.dominantTileIndex)) {
-            uniqueCluster.left.set(leftNeighbor.dominantTileIndex, 1);
-          } else {
-            const leftNeighborFrequency = uniqueCluster.left.get(leftNeighbor.dominantTileIndex);
-            uniqueCluster.left.set(leftNeighbor.dominantTileIndex, leftNeighborFrequency + 1);
-          }
-        }
-      }
-
-    }
-  }
-
-  console.log(uniqueClusters);
-}
-
 
 /**
  * Clear the output grid and create a new cell for each spot on the grid
@@ -584,52 +400,6 @@ function populateOutputGrid() {
     return;
   }
   backtrackAttempts = 0; // reset the backtrack counter
-
-
-  /*
-  ========================================================================
-  Step 3.5: Influence the cell's tile options based on the cluster patterns
-  ========================================================================
-  */
-  if (cell.y > 0 && cell.x > 0 && cell.y < dim - 1 && cell.x < dim - 1) {
-    const cluster = inputClusters[cell.y][cell.x];
-
-    if (cluster.isSolid()) {
-      console.log("Influencing cell options", cell.options)
-      const uniqueCluster = uniqueClusters[cluster.dominantTileIndex];
-
-      // combine the frequencies of the tile options
-      for (const [tileIndex, frequency] of uniqueCluster.up) {
-        if (cell.options.has(tileIndex)) {
-          const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
-        }
-      }
-
-      for (const [tileIndex, frequency] of uniqueCluster.right) {
-        if (cell.options.has(tileIndex)) {
-          const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
-        }
-      }
-
-      for (const [tileIndex, frequency] of uniqueCluster.down) {
-        if (cell.options.has(tileIndex)) {
-          const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
-        }
-      }
-
-      for (const [tileIndex, frequency] of uniqueCluster.left) {
-        if (cell.options.has(tileIndex)) {
-          const currentFrequency = cell.options.get(tileIndex);
-          cell.options.set(tileIndex, currentFrequency + (frequency * clusterWeight));
-        }
-      }
-
-      console.log("new options", cell.options);
-    }
-  }
 
 
   /*
