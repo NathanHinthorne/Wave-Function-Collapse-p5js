@@ -13,6 +13,8 @@ let outputGrid = [];
 /** The types of tiles that can be used in the output grid */
 let tileVariants = [];
 
+const distantNeighborWeight = 0.5;
+
 
 // Backtracking variables
 
@@ -207,6 +209,7 @@ function findTileNeighbors() {
       const tile = inputGrid[y][x]; // the tile we're looking at
       const tileVariant = tileVariants[tile.index]; // the tile to modify
 
+      // --- immediate neighbors ---
       if (y > 0) { // there's a tile above us
         const upNeighbor = inputGrid[y - 1][x];
         if (!tileVariant.up.has(upNeighbor.index)) {
@@ -268,6 +271,130 @@ function findTileNeighbors() {
         // there's no tile to our left, so let's put artificial constraints on the left side
         for (let edgeNeighbor of edgeNeighbors) {
           tileVariant.left.set(edgeNeighbor.index, 1);
+        }
+      }
+
+
+
+
+      // --- distant neighbors ---
+      if (y > 1) { // there's a tile two above us
+        const up2Neighbor = inputGrid[y - 2][x];
+        if (!tileVariant.up2.has(up2Neighbor.index)) {
+          tileVariant.up2.set(up2Neighbor.index, 1);
+        } else {
+          const up2NeighborFrequency = tileVariant.up2.get(up2Neighbor.index);
+          tileVariant.up2.set(up2Neighbor.index, up2NeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile two above us, so let's put artificial constraints on the top side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.up2.set(edgeNeighbor.index, 1);
+        }
+      }
+
+      if (x < width - 2) { // there's a tile two to our right
+        const right2Neighbor = inputGrid[y][x + 2];
+        if (!tileVariant.right2.has(right2Neighbor.index)) {
+          tileVariant.right2.set(right2Neighbor.index, 1);
+        } else {
+          const right2NeighborFrequency = tileVariant.right2.get(right2Neighbor.index);
+          tileVariant.right2.set(right2Neighbor.index, right2NeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile two to our right, so let's put artificial constraints on the right side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.right2.set(edgeNeighbor.index, 1);
+        }
+      }
+
+      if (y < height - 2) { // there's a tile two below us
+        const down2Neighbor = inputGrid[y + 2][x];
+        if (!tileVariant.down2.has(down2Neighbor.index)) {
+          tileVariant.down2.set(down2Neighbor.index, 1);
+        } else {
+          const down2NeighborFrequency = tileVariant.down2.get(down2Neighbor.index);
+          tileVariant.down2.set(down2Neighbor.index, down2NeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile two below us, so let's put artificial constraints on the bottom side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.down2.set(edgeNeighbor.index, 1);
+        }
+      }
+
+      if (x > 1) { // there's a tile two to our left
+        const left2Neighbor = inputGrid[y][x - 2];
+        if (!tileVariant.left2.has(left2Neighbor.index)) {
+          tileVariant.left2.set(left2Neighbor.index, 1);
+        } else {
+          const left2NeighborFrequency = tileVariant.left2.get(left2Neighbor.index);
+          tileVariant.left2.set(left2Neighbor.index, left2NeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile two to our left, so let's put artificial constraints on the left side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.left2.set(edgeNeighbor.index, 1);
+        }
+      }
+
+      if (y > 0 && x > 0) { // there's a tile up and to the left
+        const upLeftNeighbor = inputGrid[y - 1][x - 1];
+        if (!tileVariant.upLeft.has(upLeftNeighbor.index)) {
+          tileVariant.upLeft.set(upLeftNeighbor.index, 1);
+        } else {
+          const upLeftNeighborFrequency = tileVariant.upLeft.get(upLeftNeighbor.index);
+          tileVariant.upLeft.set(upLeftNeighbor.index, upLeftNeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile up and to the left, so let's put artificial constraints on the top left side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.upLeft.set(edgeNeighbor.index, 1);
+        }
+      }
+
+      if (y > 0 && x < width - 1) { // there's a tile up and to the right
+        const upRightNeighbor = inputGrid[y - 1][x + 1];
+        if (!tileVariant.upRight.has(upRightNeighbor.index)) {
+          tileVariant.upRight.set(upRightNeighbor.index, 1);
+        } else {
+          const upRightNeighborFrequency = tileVariant.upRight.get(upRightNeighbor.index);
+          tileVariant.upRight.set(upRightNeighbor.index, upRightNeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile up and to the right, so let's put artificial constraints on the top right side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.upRight.set(edgeNeighbor.index, 1);
+        }
+      }
+
+      if (y < height - 1 && x > 0) { // there's a tile down and to the left
+        const downLeftNeighbor = inputGrid[y + 1][x - 1];
+        if (!tileVariant.downLeft.has(downLeftNeighbor.index)) {
+          tileVariant.downLeft.set(downLeftNeighbor.index, 1);
+        } else {
+          const downLeftNeighborFrequency = tileVariant.downLeft.get(downLeftNeighbor.index);
+          tileVariant.downLeft.set(downLeftNeighbor.index, downLeftNeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile down and to the left, so let's put artificial constraints on the bottom left side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.downLeft.set(edgeNeighbor.index, 1);
+        }
+      }
+
+      if (y < height - 1 && x < width - 1) { // there's a tile down and to the right
+        const downRightNeighbor = inputGrid[y + 1][x + 1];
+        if (!tileVariant.downRight.has(downRightNeighbor.index)) {
+          tileVariant.downRight.set(downRightNeighbor.index, 1);
+        } else {
+          const downRightNeighborFrequency = tileVariant.downRight.get(downRightNeighbor.index);
+          tileVariant.downRight.set(downRightNeighbor.index, downRightNeighborFrequency + 1);
+        }
+      } else {
+        // there's no tile down and to the right, so let's put artificial constraints on the bottom right side
+        for (let edgeNeighbor of edgeNeighbors) {
+          tileVariant.downRight.set(edgeNeighbor.index, 1);
         }
       }
     }
@@ -442,8 +569,6 @@ function populateOutputGrid() {
     const rightNeighbor = outputGrid[cell.y][cell.x + 1];
 
     if (!rightNeighbor.collapsed) {
-      // Remove tile options in neighbor that are not present in this tile's 'right' options.
-      // In other words, perform an INTERSECTION between neighbor's options and this tile's 'right' options
 
       rightNeighbor.options.forEach((optionFrequency, optionTile) => {
         if (!tile.right.has(optionTile)) {
@@ -461,8 +586,6 @@ function populateOutputGrid() {
     const downNeighbor = outputGrid[cell.y + 1][cell.x];
 
     if (!downNeighbor.collapsed) {
-      // Remove tile options in neighbor that are not present in this tile's 'down' options.
-      // In other words, perform an INTERSECTION between neighbor's options and this tile's 'down' options
 
       downNeighbor.options.forEach((optionFrequency, optionTile) => {
         if (!tile.down.has(optionTile)) {
@@ -480,8 +603,6 @@ function populateOutputGrid() {
     const leftNeighbor = outputGrid[cell.y][cell.x - 1];
 
     if (!leftNeighbor.collapsed) {
-      // Remove tile options in neighbor that are not present in this tile's 'left' options.
-      // In other words, perform an INTERSECTION between neighbor's options and this tile's 'left' options
 
       leftNeighbor.options.forEach((optionFrequency, optionTile) => {
         if (!tile.left.has(optionTile)) {
@@ -490,6 +611,142 @@ function populateOutputGrid() {
           // Combine the frequencies of the tile options
           const currentTileFrequency = tile.left.get(optionTile);
           leftNeighbor.options.set(optionTile, optionFrequency + currentTileFrequency);
+        }
+      });
+    }
+  }
+
+  if (cell.y > 1) { // there's a tile two above us
+    const up2Neighbor = outputGrid[cell.y - 2][cell.x];
+
+    if (!up2Neighbor.collapsed) {
+
+      up2Neighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.up2.has(optionTile)) {
+          up2Neighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.up2.get(optionTile); // freq of tile two above
+          up2Neighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
+        }
+      });
+    }
+  }
+
+  if (cell.x < gridWidth - 2) { // there's a tile two to our right
+    const right2Neighbor = outputGrid[cell.y][cell.x + 2];
+
+    if (!right2Neighbor.collapsed) {
+
+      right2Neighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.right2.has(optionTile)) {
+          right2Neighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.right2.get(optionTile); // freq of tile two to the right
+          right2Neighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
+        }
+      });
+    }
+  }
+
+  if (cell.y < gridHeight - 2) { // there's a tile two below us
+    const down2Neighbor = outputGrid[cell.y + 2][cell.x];
+
+    if (!down2Neighbor.collapsed) {
+
+      down2Neighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.down2.has(optionTile)) {
+          down2Neighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.down2.get(optionTile); // freq of tile two below
+          down2Neighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
+        }
+      });
+    }
+  }
+
+  if (cell.x > 1) { // there's a tile two to our left
+    const left2Neighbor = outputGrid[cell.y][cell.x - 2];
+
+    if (!left2Neighbor.collapsed) {
+
+      left2Neighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.left2.has(optionTile)) {
+          left2Neighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.left2.get(optionTile); // freq of tile two to the left
+          left2Neighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
+        }
+      });
+    }
+  }
+
+  if (cell.y > 0 && cell.x > 0) { // there's a tile up and to the left
+    const upLeftNeighbor = outputGrid[cell.y - 1][cell.x - 1];
+
+    if (!upLeftNeighbor.collapsed) {
+
+      upLeftNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.upLeft.has(optionTile)) {
+          upLeftNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.upLeft.get(optionTile); // freq of tile up and to the left
+          upLeftNeighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
+        }
+      });
+    }
+  }
+
+  if (cell.y > 0 && cell.x < gridWidth - 1) { // there's a tile up and to the right
+    const upRightNeighbor = outputGrid[cell.y - 1][cell.x + 1];
+
+    if (!upRightNeighbor.collapsed) {
+
+      upRightNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.upRight.has(optionTile)) {
+          upRightNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.upRight.get(optionTile); // freq of tile up and to the right
+          upRightNeighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
+        }
+      });
+    }
+  }
+
+  if (cell.y < gridHeight - 1 && cell.x > 0) { // there's a tile down and to the left
+    const downLeftNeighbor = outputGrid[cell.y + 1][cell.x - 1];
+
+    if (!downLeftNeighbor.collapsed) {
+
+      downLeftNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.downLeft.has(optionTile)) {
+          downLeftNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.downLeft.get(optionTile); // freq of tile down and to the left
+          downLeftNeighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
+        }
+      });
+    }
+  }
+
+  if (cell.y < gridHeight - 1 && cell.x < gridWidth - 1) { // there's a tile down and to the right
+    const downRightNeighbor = outputGrid[cell.y + 1][cell.x + 1];
+
+    if (!downRightNeighbor.collapsed) {
+
+      downRightNeighbor.options.forEach((optionFrequency, optionTile) => {
+        if (!tile.downRight.has(optionTile)) {
+          downRightNeighbor.options.delete(optionTile);
+        } else {
+          // Combine the frequencies of the tile options
+          const currentTileFrequency = tile.downRight.get(optionTile); // freq of tile down and to the right
+          downRightNeighbor.options.set(optionTile, optionFrequency + (currentTileFrequency * distantNeighborWeight));
         }
       });
     }

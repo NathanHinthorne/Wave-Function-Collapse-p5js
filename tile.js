@@ -20,20 +20,24 @@ class Tile {
     this.behavior = null;
 
 
-    // Maps of tile indices to their frequency,
+    // Maps of tile indices to their frequency.
     // This rolls adjacency rules and frequency hints into one
 
-    /** A Map where the keys are the indices of available tiles to appear above this one, and the values are their corresponding frequencies */
+    // Immediate neighbors: 1 tile away
     this.up = new Map();
-
-    /** A Map where the keys are the indices of available tiles to appear to the right of this one, and the values are their corresponding frequencies */
     this.right = new Map();
-
-    /** A Map where the keys are the indices of available tiles to appear below this one, and the values are their corresponding frequencies */
     this.down = new Map();
-
-    /** A Map where the keys are the indices of available tiles to appear to the left of this one, and the values are their corresponding frequencies */
     this.left = new Map();
+
+    // Distance neighbors: 2 tiles away
+    this.up2 = new Map();
+    this.right2 = new Map();
+    this.down2 = new Map();
+    this.left2 = new Map();
+    this.upLeft = new Map();
+    this.upRight = new Map();
+    this.downLeft = new Map();
+    this.downRight = new Map();
   }
 
   createHash() {
