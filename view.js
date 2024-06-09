@@ -8,13 +8,17 @@ let analyzeButton, playButton, pauseButton, resetButton,
     dimInput, fileInput, tileSizeInput, tileSizeSlider,
     dimSlider, loadingBar, saveImageButton, saveTilemapButton,
     saveRulesButton, githubLink,
-    frameRateSlider, behaviorFloorButton, behaviorEmptyButton, behaviorResetButton;
+    frameRateSlider, behaviorFloorButton, behaviorEmptyButton,
+    behaviorDeselectButton, behaviorResetButton, nameInput;
 
 let popSfx1 = null;
 let popSfx2 = null;
 let popSfx3 = null;
 
 let tileVariantDisplays = [];
+
+/** Currently selected tile variants */
+let selectedTileVariants = [];
 
 
 function setupView() {
@@ -176,7 +180,8 @@ function setupView() {
     saveRulesButton.position(downloadX + 260, downloadY);
     saveRulesButton.style('width', '100px');
     saveRulesButton.style('font-size', '12px');
-    saveRulesButton.mousePressed(handleRulesDownload);
+    // saveRulesButton.mousePressed(handleRulesDownload); // json file is easier to read, but harder to parse with WFC engine
+    saveRulesButton.mousePressed(handleTileVariantsDownload);
     enableDownloadButtons(false);
 
 
@@ -198,6 +203,13 @@ function setupView() {
     behaviorEmptyButton.position(behaviorX + 110, behaviorY);
     behaviorEmptyButton.mousePressed(() => handleBehaviorButton('empty'));
 
+    // behaviorDeselectButton = createButton('Deselect');
+    // behaviorDeselectButton.style('font-size', '10px');
+    // behaviorDeselectButton.style('height', '40px');
+    // behaviorDeselectButton.elt.innerHTML += ' <i class="fas fa-times"></i>'; // Place icon inside the button
+    // behaviorDeselectButton.position(behaviorX + 220, behaviorY);
+    // behaviorDeselectButton.mousePressed(handleDeselectBehaviorButton);
+
     behaviorResetButton = createButton('Reset');
     behaviorResetButton.style('font-size', '10px');
     behaviorResetButton.style('height', '40px');
@@ -205,9 +217,25 @@ function setupView() {
     behaviorResetButton.elt.innerHTML += ' <i class="fas fa-undo"></i>'; // Place icon inside the button
     behaviorResetButton.position(behaviorX + 330, behaviorY);
     behaviorResetButton.mousePressed(handleUndoBehaviorButton);
-    behaviorResetButton.hide();
 
+    enableBehaviorEditButtons(false);
     enableBehaviorButtons(false);
+
+    // --- NAME INPUT ---
+    const nameX = 360;
+    const nameY = 630;
+    nameInput = createInput('');
+    nameInput.attribute('placeholder', 'Name');
+    nameInput.position(nameX, nameY);
+    nameInput.style('width', '100px');
+    // handle enter pressed
+    nameInput.elt.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) { // 13 is the key code for Enter
+            handleNameInput();
+        }
+    });
+    nameInput.hide();
+
 
 
     // --- OUTSIDE LINKS ---
@@ -239,7 +267,7 @@ function analyze() {
     analyzeTiles();
     imageIsAnalyzed = true;
     initializeOutputGrid();
-    behaviorResetButton.show();
+    enableBehaviorEditButtons(true);
     enableEditButtons(true);
 }
 
@@ -404,7 +432,15 @@ function handleTilemapDownload() {
         for (let x = 0; x < outputGrid[y].length; x++) {
             const cell = outputGrid[y][x];
             const tileIndex = cell.selectedTile;
-            tilemap[y][x] = tileIndex;
+
+            let displayName;
+            if (tileVariants[tileIndex].name) {
+                displayName = tileVariants[tileIndex].name;
+            } else {
+                displayName = tileIndex.toString();
+            }
+
+            tilemap[y][x] = displayName;
         }
     }
 
@@ -413,7 +449,7 @@ function handleTilemapDownload() {
     tilemap.forEach((row, rowIndex) => {
         jsonStr += "\t\t[";
         row.forEach((tile, tileIndex) => {
-            jsonStr += tile;
+            jsonStr += `"${tile}"`;
             if (tileIndex !== row.length - 1) {
                 jsonStr += ", ";
             }
@@ -478,6 +514,41 @@ function handleRulesDownload() {
     downloadJSON(jsonStr, 'tile-rules.json');
 }
 
+// downloads a json file that's easier to read, but harder to parse with the WFC engine
+function handleTileVariantsDownload() {
+    let tileVariantsJSON = [];
+
+    tileVariants.forEach(tile => {
+        let tileVariant = {
+            "index": tile.index,
+            "name": tile.name,
+            "behavior": tile.behavior,
+            "up": Array.from(tile.up.entries()),
+            "right": Array.from(tile.right.entries()),
+            "down": Array.from(tile.down.entries()),
+            "left": Array.from(tile.left.entries()),
+        };
+        tileVariantsJSON.push(tileVariant);
+    });
+
+    // Manually construct JSON string
+    let jsonStr = "{\n\t\"tileVariants\": [\n";
+    tileVariantsJSON.forEach((tile, index) => {
+        jsonStr += "\t\t{\n";
+        jsonStr += `\t\t\t"index": ${tile.index},\n`;
+        jsonStr += `\t\t\t"name": "${tile.name}",\n`;
+        jsonStr += `\t\t\t"behavior": "${tile.behavior}",\n`;
+        jsonStr += `\t\t\t"up": ${JSON.stringify(tile.up)},\n`;
+        jsonStr += `\t\t\t"right": ${JSON.stringify(tile.right)},\n`;
+        jsonStr += `\t\t\t"down": ${JSON.stringify(tile.down)},\n`;
+        jsonStr += `\t\t\t"left": ${JSON.stringify(tile.left)}\n`;
+        jsonStr += (index !== tileVariantsJSON.length - 1) ? "\t\t},\n" : "\t\t}\n";
+    });
+    jsonStr += "\t]\n}";
+
+    downloadJSON(jsonStr, 'tile-variants.json');
+}
+
 function downloadJSON(json, filename) {
     let blob = new Blob([json], { type: "application/json" });
     let url = URL.createObjectURL(blob);
@@ -500,6 +571,11 @@ function handleBehaviorButton(behavior) {
     initializeOutputGrid();
 }
 
+function handleDeselectBehaviorButton() {
+    selectedTileVariants = [];
+    enableBehaviorButtons(false);
+}
+
 function handleUndoBehaviorButton() {
     selectedTileVariants = [];
     tileVariantDisplays.forEach(display => {
@@ -511,6 +587,20 @@ function handleUndoBehaviorButton() {
     findTileNeighbors();
     initializeOutputGrid();
 }
+
+function handleNameInput() {
+    console.log('name input:', nameInput.value());
+    if (nameInput.value()) {
+        selectedTileVariants.forEach(index => {
+            tileVariants[index].name = nameInput.value();
+        });
+    }
+    // deselect the tile variants
+    selectedTileVariants = [];
+    enableNameInput(false);
+    enableBehaviorButtons(false);
+}
+
 
 function enableEditButtons(isEnabled) {
     if (isEnabled) {
@@ -554,6 +644,7 @@ function enableDownloadButtons(isEnabled) {
     }
 }
 
+
 function enableBehaviorButtons(isEnabled) {
     if (isEnabled) {
         behaviorFloorButton.show();
@@ -561,6 +652,23 @@ function enableBehaviorButtons(isEnabled) {
     } else {
         behaviorFloorButton.hide();
         behaviorEmptyButton.hide();
+    }
+}
+
+function enableNameInput(isEnabled) {
+    if (isEnabled) {
+        nameInput.show();
+        nameInput.elt.focus();
+    } else {
+        nameInput.hide();
+    }
+}
+
+function enableBehaviorEditButtons(isEnabled) {
+    if (isEnabled) {
+        behaviorResetButton.show();
+    } else {
+        behaviorResetButton.hide();
     }
 }
 
@@ -577,9 +685,9 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
     text("Tile Variants", cardX + 10, cardY + 20);
 
     // show the image associated with each tile variant, along with its index on the canvas
-    const tileDisplaySize = 30;
+    const tileDisplaySize = 34;
     const margin = 10;
-    const spacing = tileDisplaySize / 10 + 1;
+    const spacing = tileDisplaySize / 8 + 1;
     const rowSpacing = 15;
 
     // Calculate rowSize based on the cardWidth
@@ -623,7 +731,14 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
         // Draw the tile index below the tile image
         fill(0);
         textSize(8);
-        const str = i.toString();
+        let str;
+
+        if (tile.name) {
+            str = tile.name;
+        } else {
+            str = i.toString();
+        }
+
         const txtWidth = textWidth(str);
         text(str, tileXPos + tileDisplaySize / 2 - txtWidth / 2, tileYPos + tileDisplaySize + 10);
 
@@ -862,9 +977,6 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
     helpText.parent(card);
 }
 
-// Array to store selected tile variants
-let selectedTileVariants = [];
-
 function mousePressed() {
     // Loop through tileVariantDisplays
     for (const tileDisplay of tileVariantDisplays) {
@@ -888,8 +1000,10 @@ function mousePressed() {
 
     if (selectedTileVariants.length > 0) {
         enableBehaviorButtons(true);
+        enableNameInput(true);
     } else {
         enableBehaviorButtons(false);
+        enableNameInput(false);
     }
 }
 
