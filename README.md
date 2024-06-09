@@ -11,7 +11,7 @@ Ultimately, my hope for this project is that it would facilitate easy map creati
 Here are some more specific ideas that support the statement above:
 
 - A open-world 2D game (like Terraria, but with very different terrain) that is procedurally generated using WFC (off screen, so players can't see world being made).
-  - An input image would be run through this WFC demo. This would provide tile rules for a form of WFC built within the game.
+  - An input image would be run through this WFC demo. This would provide tile rules for a form of WFC built within the game. NOTE: I made another GitHub repo called [WFC-Engine](https://github.com/NathanHinthorne/WFC-Engine) that does this.
   - World would be generated in chunks, with a "stitching" algorithm that ensures chunks connect properly. This would avoid restarts caused by backtracking and would provide the opportunity to run WFC in parallel.
   - WFC would be used to generate the **basic terrain**, but another algorithm with simple randomization could add **variation** by swapping these out with appropriate tile variations. This technique would be used for things like trees, rocks, or other decorations that are placed on the terrain.
   
