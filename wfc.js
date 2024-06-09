@@ -65,7 +65,7 @@ let outputIsComplete = false;
 
 
 function preload() {
-  inputImage = loadImage('assets/sample_input/demo8.png');
+  inputImage = loadImage('assets/sample_input/demo7.png');
 }
 
 function setup() {
