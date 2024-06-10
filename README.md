@@ -16,7 +16,6 @@ Here are some more specific ideas that support the statement above:
   - World would be generated in chunks, with a "stitching" algorithm that ensures chunks connect properly. This would avoid restarts caused by backtracking and would provide the opportunity to run WFC in parallel.
   - WFC would be used to generate the **basic terrain**, but another algorithm with simple randomization could add **variation** by swapping these out with appropriate tile variations. This technique would be used for things like trees, rocks, or other decorations that are placed on the terrain.
 
-
 ## Algorithm
 
 The algorithm works in the following way:
@@ -68,6 +67,8 @@ For a more detailed explanation how the algorithm works, you may read [this pape
       - Cares too much about the direction of previously placed tiles (i.e. a cell might be constrained to a specific tile in a specific direction). This could be helpful is some circumstances, but most of the time we simply want to clump similar tiles together. NOTE: This should be possible to fix by simply lumping all distant neighbors from all directions into a single map of frequency hints.
 
   - [ ] To eliminate unfavorable randomess, try passing along `limit` parameters in addition to frequency hints. These limits would be decremented each time a cell collapses into the tile. This prevents WFC from going hog wild with certain tiles.
+
+  - [ ] To use a technique that's proven to work for generating natural terrain, try implementing an overlapping model of WFC.
   
   - [x] Since this version of WFC is geared towards terrain generation, it's probably okay to add some global contraints in addition to the local constraints that already exist between tile variants. Therefore, let the user specify a **behavior** for any tile variant they choose (e.g. "floor" and "empty"). Ensure these categories have global constraints that must be followed. For example:
   
