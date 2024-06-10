@@ -432,13 +432,9 @@ function handleTilemapDownload() {
         for (let x = 0; x < outputGrid[y].length; x++) {
             const cell = outputGrid[y][x];
             const tileIndex = cell.selectedTile;
+            const tile = tileVariants[tileIndex];
 
-            let displayName;
-            if (tileVariants[tileIndex].name) {
-                displayName = tileVariants[tileIndex].name;
-            } else {
-                displayName = tileIndex.toString();
-            }
+            const displayName = tile.name ? tile.name : tileIndex.toString();
 
             tilemap[y][x] = displayName;
         }
@@ -531,13 +527,17 @@ function handleTileVariantsDownload() {
         tileVariantsJSON.push(tileVariant);
     });
 
+
     // Manually construct JSON string
     let jsonStr = "{\n\t\"tileVariants\": [\n";
     tileVariantsJSON.forEach((tile, index) => {
+        const jsonName = tile.name ? `"${tile.name}"` : null;
+        const jsonBehavior = tile.behavior ? `"${tile.behavior}"` : null;
+
         jsonStr += "\t\t{\n";
         jsonStr += `\t\t\t"index": ${tile.index},\n`;
-        jsonStr += `\t\t\t"name": "${tile.name}",\n`;
-        jsonStr += `\t\t\t"behavior": "${tile.behavior}",\n`;
+        jsonStr += `\t\t\t"name": ${jsonName},\n`;
+        jsonStr += `\t\t\t"behavior": ${jsonBehavior},\n`;
         jsonStr += `\t\t\t"up": ${JSON.stringify(tile.up)},\n`;
         jsonStr += `\t\t\t"right": ${JSON.stringify(tile.right)},\n`;
         jsonStr += `\t\t\t"down": ${JSON.stringify(tile.down)},\n`;
