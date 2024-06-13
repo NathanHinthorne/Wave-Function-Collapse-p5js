@@ -86,6 +86,12 @@ class Cell {
 
     if (this.options.size === 0) {
       throw new Error('Tried to collapse, but no tile options were available')
+
+      // uncomment to avoid backtracking
+      // this.selectedTile = 0;
+      // this.collapsed = true;
+      // this.options.clear(); // erase all other options
+      // return;
     }
     // Calculate cumulative frequencies
     let frequencyDistribution = new Map();

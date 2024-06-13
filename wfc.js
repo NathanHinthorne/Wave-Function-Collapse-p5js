@@ -522,7 +522,7 @@ function populateOutputGrid() {
       backtrackAttempts++;
 
     } else { // if we've backtracked 20 times, just start over
-      restartOutputGrid();
+      // restartOutputGrid();
     }
     return;
   }
