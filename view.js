@@ -1107,3 +1107,6 @@ function downloadLogs() {
     document.body.removeChild(link);
 }
 
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}
