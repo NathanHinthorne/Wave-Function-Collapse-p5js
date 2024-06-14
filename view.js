@@ -216,7 +216,7 @@ function setupView() {
 
     // Create a paragraph for the card
     const helpText = createP(
-        '1. Upload an image composed of tiles (similar to the example below). <br><br>' +
+        '1. Upload an image composed of tiles (or use the example below). <br><br>' +
         '2. Set the tile size. <br><br>' +
         '3. Click "Analyze" to identify tile variants and the patterns between them. <br><br>' +
         '4. Set the dimensions of the output grid. <br><br>' +
