@@ -9,7 +9,7 @@ let analyzeButton, playButton, pauseButton, resetButton,
     dimSlider, loadingBar, saveImageButton, saveTilemapButton,
     saveRulesButton, githubLink,
     frameRateSlider, behaviorFloorButton, behaviorEmptyButton,
-    behaviorDeselectButton, behaviorResetButton, nameInput;
+    behaviorDeselectButton, behaviorResetButton, nameInput, pxText, frameRateText, gettingStartedCard;
 
 let popSfx1 = null;
 let popSfx2 = null;
@@ -22,55 +22,48 @@ let selectedTileVariants = [];
 
 
 function setupView() {
-    // --- CANVAS ---
 
     // Get dimensions of the user's screen
-    const userWidth = window.innerWidth - 20;
-    const userHeight = window.innerHeight - 20;
+    // const userWidth = window.innerWidth - 20;
+    // const userHeight = window.innerHeight - 20;
+    const userWidth = windowWidth - 20;
+    const userHeight = windowHeight - 20;
     createCanvas(userWidth, userHeight);
 
     // Give an initial text to overlay on the example image
-    const exampleText = createP('Example');
-    exampleText.style('font-size', '80px');
-    exampleText.style('color', 'rgba(0,0,0,0.3)');
-    exampleText.position(100, 100);
-    exampleText.id('example-text');
+    // const exampleText = createP('Example');
+    // exampleText.style('color', 'rgba(0,0,0,0.3)');
+    // exampleText.position(100, 100);
+    // exampleText.style('font-size', '80px');
+    // exampleText.id('example-text');
 
 
     // --- SFX ---
-    popSfx1 = loadSound('assets/sfx/high-pop.mp3');
-    popSfx2 = loadSound('assets/sfx/low-pop1.mp3');
-    popSfx3 = loadSound('assets/sfx/low-pop2.mp3');
+    // popSfx1 = loadSound('assets/sfx/high-pop.mp3');
+    // popSfx2 = loadSound('assets/sfx/low-pop1.mp3');
+    // popSfx3 = loadSound('assets/sfx/low-pop2.mp3');
 
 
     // --- INPUT IMAGE PARAMETERS ---
 
-    const inputParamsStartY = 480;
-
     // Create file input
     fileInput = createFileInput(handleFile);
-    fileInput.position(100, inputParamsStartY);
     fileInput.style('display', 'block');
     fileInput.attribute('accept', '.jpg, .jpeg, .png');
 
     // Create tile pixel size input box
     tileSizeInput = createInput('');
-    tileSizeInput.position(185, inputParamsStartY + 60);
-    tileSizeInput.style('width', '100px');
     tileSizeInput.input(() => {
         updateSliderFromInput(tileSizeSlider, tileSizeInput);
         updateTileSize();
     });
     tileSizeInput.changed(validateInput)
     tileSizeInput.attribute('placeholder', 'Tile Size'); // Set placeholder text
-    const px = createP('px');
-    px.position(290, inputParamsStartY + 65);
+    pxText = createP('px');
     tileSizeInput.elt.addEventListener('input', updateLabelPosition);
 
     // Create tile pixel size slider
     tileSizeSlider = createSlider(0, 100, 0);
-    tileSizeSlider.position(160, inputParamsStartY + 120);
-    tileSizeSlider.style('width', '145px');
     tileSizeSlider.input(() => {
         updateInputFromSlider(tileSizeInput, tileSizeSlider);
         updateTileSize();
@@ -82,45 +75,32 @@ function setupView() {
     // --- OUTPUT IMAGE PARAMETERS ---
 
     // Create an analyze button
-    const buttonX = 500;
     analyzeButton = createButton('Analyze');
-    analyzeButton.position(buttonX, 60);
     analyzeButton.mousePressed(analyze);
-    analyzeButton.style('width', '120px');
-
-    const firstButton = 220;
 
     // Create play button
     playButton = createButton('');
-    playButton.position(buttonX, firstButton + 60);
     playButton.mousePressed(handlePlay);
     playButton.elt.innerHTML = '<i class="fas fa-play"></i>'; // Place icon inside the button
-    playButton.style('width', '80px');
     playButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     playButton.class('grayed-out');
 
     // Create pause button
     pauseButton = createButton('');
-    pauseButton.position(buttonX, firstButton + 120);
     pauseButton.mousePressed(handlePause);
     pauseButton.elt.innerHTML = '<i class="fas fa-pause"></i>'; // Place icon inside the button
-    pauseButton.style('width', '80px');
     pauseButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     pauseButton.class('grayed-out');
 
     // Create reset button
     resetButton = createButton('');
-    resetButton.position(buttonX, firstButton + 180);
     resetButton.mousePressed(handleReset);
     resetButton.elt.innerHTML = '<i class="fas fa-undo"></i>'; // Place icon inside the button
-    resetButton.style('width', '80px');
     resetButton.attribute('disabled', ''); // Disable the button until the image is analyzed
     resetButton.class('grayed-out');
 
     // Create dimension input box
     dimInput = createInput('');
-    dimInput.position(505, 140);
-    dimInput.style('width', '120px');
     dimInput.input(() => {
         updateSliderFromInput(dimSlider, dimInput);
         updateDim();
@@ -131,8 +111,6 @@ function setupView() {
 
     // Create dimension slider
     dimSlider = createSlider(0, 100, 0);
-    dimSlider.position(490, 200);
-    dimSlider.style('width', '145px');
     dimSlider.input(() => {
         updateInputFromSlider(dimInput, dimSlider);
         updateDim();
@@ -140,67 +118,47 @@ function setupView() {
     dimSlider.hide();
 
     // --- FRAME RATE SLIDER ---
-    const frameRateX = 740;
-    const frameRateY = 460;
     frameRateSlider = createSlider(1, 60, 60);
-    frameRateSlider.position(frameRateX, frameRateY);
-    frameRateSlider.style('width', '200px');
     frameRateSlider.input(() => {
         frameRate(frameRateSlider.value());
     });
     // put text next to the slider
-    const frameRateText = createP('Generation Speed');
-    frameRateText.position(frameRateX + 50, frameRateY - 40);
+    frameRateText = createP('Generation Speed');
 
 
     // --- DOWNLOAD BUTTONS ---
 
-    const downloadX = 1100;
-    const downloadY = 475;
-
     // Create a download image button
     saveImageButton = createButton('Image <br>');
-    saveImageButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
-    saveImageButton.position(downloadX, downloadY);
-    saveImageButton.style('width', '100px');
     saveImageButton.style('font-size', '12px');
+    saveImageButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveImageButton.mousePressed(handleImageDownload);
 
     // Create a download tilemap json button
     saveTilemapButton = createButton('Tilemap <br>');
-    saveTilemapButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
-    saveTilemapButton.position(downloadX + 130, downloadY);
-    saveTilemapButton.style('width', '100px');
     saveTilemapButton.style('font-size', '12px');
+    saveTilemapButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     saveTilemapButton.mousePressed(handleTilemapDownload);
 
     // create a button to download the tile mappings
     saveRulesButton = createButton('Tile Rules <br>');
-    saveRulesButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
-    saveRulesButton.position(downloadX + 260, downloadY);
-    saveRulesButton.style('width', '100px');
     saveRulesButton.style('font-size', '12px');
+    saveRulesButton.elt.innerHTML += '<i class="fas fa-download"></i>'; // Place icon inside the button
     // saveRulesButton.mousePressed(handleRulesDownload); // json file is easier to read, but harder to parse with WFC engine
     saveRulesButton.mousePressed(handleTileVariantsDownload);
     enableDownloadButtons(false);
 
 
     // --- BEHAVIOR BUTTONS ---
-    const behaviorX = 1088;
-    const behaviorY = 630;
 
     behaviorFloorButton = createButton('Apply');
     behaviorFloorButton.style('font-size', '10px');
-    behaviorFloorButton.style('height', '40px');
     behaviorFloorButton.elt.innerHTML += ' <i class="fas fa-check"></i>'; // Place icon inside the button
-    behaviorFloorButton.position(behaviorX, behaviorY);
     behaviorFloorButton.mousePressed(() => handleBehaviorButton('floor'));
 
     behaviorEmptyButton = createButton('Apply');
     behaviorEmptyButton.style('font-size', '10px');
-    behaviorEmptyButton.style('height', '40px');
     behaviorEmptyButton.elt.innerHTML += ' <i class="fas fa-check"></i>'; // Place icon inside the button
-    behaviorEmptyButton.position(behaviorX + 110, behaviorY);
     behaviorEmptyButton.mousePressed(() => handleBehaviorButton('empty'));
 
     // behaviorDeselectButton = createButton('Deselect');
@@ -212,22 +170,17 @@ function setupView() {
 
     behaviorResetButton = createButton('Reset');
     behaviorResetButton.style('font-size', '10px');
-    behaviorResetButton.style('height', '40px');
     behaviorResetButton.class('red-button')
     behaviorResetButton.elt.innerHTML += ' <i class="fas fa-undo"></i>'; // Place icon inside the button
-    behaviorResetButton.position(behaviorX + 330, behaviorY);
     behaviorResetButton.mousePressed(handleUndoBehaviorButton);
 
     enableBehaviorEditButtons(false);
     enableBehaviorButtons(false);
 
     // --- NAME INPUT ---
-    const nameX = 360;
-    const nameY = 630;
     nameInput = createInput('');
     nameInput.attribute('placeholder', 'Name');
-    nameInput.position(nameX, nameY);
-    nameInput.style('width', '100px');
+
     // handle enter pressed
     nameInput.elt.addEventListener('keydown', function (e) {
         if (e.keyCode === 13) { // 13 is the key code for Enter
@@ -242,16 +195,34 @@ function setupView() {
 
     // Create GitHub link to the repo
     githubLink = createA('https://github.com/NathanHinthorne/Wave-Function-Collapse?tab=readme-ov-file', 'GitHub Repository ');
-    githubLink.position(10, 655);
     githubLink.class('github-link');
     githubLink.elt.innerHTML += '<i class="fab fa-github"></i>'; // Place icon inside the button
-    githubLink.style('width', '145px');
 
     // Create a collapsable help menu
     // displayHelpMenu(700, 10, 400, 400);
 
-    // Create a simple how to use section
-    displayGettingStarted(670, 50, 340, 410);
+
+    // --- HOW TO USE SECTION ---
+
+    // Create a card for the getting started section
+    gettingStartedCard = createDiv('');
+    gettingStartedCard.id('getting-started');
+
+    // Create a title for the card
+    const title = createP('How to Use');
+    title.style('font-size', '24px');
+    title.style('font-weight', 'bold');
+    title.parent(gettingStartedCard);
+
+    // Create a paragraph for the card
+    const helpText = createP(
+        '1. Upload an image composed of tiles (similar to the example below). <br><br>' +
+        '2. Set the tile size. <br><br>' +
+        '3. Click "Analyze" to identify tile variants and the patterns between them. <br><br>' +
+        '4. Set the dimensions of the output grid. <br><br>' +
+        '5. Click "Play" to generate the tilemap. <br><br>' +
+        '6. Click "Image" to save the output image. <br>Click "Tilemap" to save the tilemap as JSON. <br>Click "Tile Rules" to save the tile rules as JSON.');
+    helpText.parent(gettingStartedCard);
 
 
     // --- LOGS ---
@@ -260,6 +231,9 @@ function setupView() {
     // downloadLogsButton.class('yellow-button')
     // downloadLogsButton.position(800, 630);
     // downloadLogsButton.mousePressed(downloadLogs);
+
+
+    updateUIPositions();
 }
 
 
@@ -399,9 +373,9 @@ function handleFile(file) {
             redraw();
 
 
-            if (select('#example-text')) {
-                select('#example-text').remove();
-            }
+            // if (select('#example-text')) {
+            //     select('#example-text').remove();
+            // }
         });
     } else {
         inputImage = null;
@@ -679,13 +653,15 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
     noStroke();
     rect(cardX, cardY, cardWidth, cardHeight, 2);
 
+    const minSize = min(cardWidth, cardHeight);
     fill(0);
-    textSize(14);
+    const titleSize = minSize / 13;
+    textSize(titleSize);
     textStyle(BOLD);
     text("Tile Variants", cardX + 10, cardY + 20);
 
     // show the image associated with each tile variant, along with its index on the canvas
-    const tileDisplaySize = 34;
+    const tileDisplaySize = minSize / 6;
     const margin = 10;
     const spacing = tileDisplaySize / 8 + 1;
     const rowSpacing = 15;
@@ -773,7 +749,12 @@ function displayInputGrid(cardX, cardY, cardWidth, cardHeight) {
     // Draw a light gray background behind the input grid
     fill(230);
     noStroke();
-    rect(cardX, cardY, cardWidth, cardHeight, 2);
+    // rect(cardX, cardY, cardWidth, cardHeight, 2);
+
+    // wrap the input grid in a card background
+    const newCardWidth = maxTilesX * (tileDisplaySize + spacing) + 2 * margin - 5;
+    const newCardHeight = maxTilesY * (tileDisplaySize + spacing) + 2 * margin - 5;
+    rect(cardX, cardY, newCardWidth, newCardHeight, 2);
 
     for (let y = 0; y < maxTilesY; y++) {
         for (let x = 0; x < maxTilesX; x++) {
@@ -878,7 +859,7 @@ function displayOutputGrid(cardX, cardY, cardWidth, cardHeight) {
                     }
                     rect(xPos, yPos, tileDisplaySize, tileDisplaySize);
 
-                    if (dim <= 20) {
+                    if (dim <= 15) {
                         // Draw the entropy value in the center of the cell
                         fill(0);
                         textSize(10);
@@ -915,56 +896,49 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
     noStroke();
     rect(cardX, cardY, cardWidth, cardHeight, 2);
 
+    const minSize = min(cardWidth, cardHeight);
     // card title
     fill(0);
-    textSize(14);
+    const titleSize = minSize / 13;
+    textSize(titleSize);
     textStyle(BOLD);
     text("Tile Behaviors", cardX + 10, cardY + 20);
 
     const padding = 20;
-    const backgroundWidth = 80;
+    const backgroundWidth = (cardWidth - 2 * padding) / 4;
 
     // backgrounds for button titles
     fill(50, 50, 255, 128); // translucent blue
-    rect(cardX + padding + 10, cardY + 40, backgroundWidth, 30);
+    rect(cardX + padding, cardY + 40, backgroundWidth, 30);
 
     fill(215, 130, 215, 128); // translucent pink
-    rect(cardX + padding + 120, cardY + 40, backgroundWidth, 30);
+    rect(cardX + 80 + padding, cardY + 40, backgroundWidth, 30);
 
     // button titles
     push();
     fill(0);
-    textSize(12);
+    const relativeTextSize = cardWidth / 25;
+    const textPadding = padding + backgroundWidth / 2;
+    textSize(relativeTextSize);
     textAlign(CENTER, CENTER); // center the text
-    text("Floor", cardX + padding + 10 + backgroundWidth / 2, cardY + 40 + 30 / 2);
-    text("Empty", cardX + padding + 120 + backgroundWidth / 2, cardY + 40 + 30 / 2);
+    text("Floor", cardX + textPadding, cardY + 40 + 30 / 2);
+    text("Empty", cardX + 80 + textPadding, cardY + 40 + 30 / 2);
     pop();
-
-    if (selectedTileVariants.length === 0) {
-        // display header text "Select tile variants to categorize"
-        push();
-        fill(0);
-        textSize(16);
-        textStyle('italic');
-        text("Select some tile variants", cardX + 260, cardY + 10, 300, 50);
-
-        pop();
-    }
 }
 
 
 function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
     // Create a card for the getting started section
-    const card = createDiv('');
-    card.position(cardX, cardY);
-    card.size(cardWidth, cardHeight);
-    card.id('getting-started');
+    gettingStartedCard = createDiv('');
+    gettingStartedCard.position(cardX, cardY);
+    gettingStartedCard.size(cardWidth, cardHeight);
+    gettingStartedCard.id('getting-started');
 
     // Create a title for the card
     const title = createP('How to Use');
     title.style('font-size', '24px');
     title.style('font-weight', 'bold');
-    title.parent(card);
+    title.parent(gettingStartedCard);
 
     // Create a paragraph for the card
     const helpText = createP(
@@ -974,7 +948,7 @@ function displayGettingStarted(cardX, cardY, cardWidth, cardHeight) {
         '4. Set the dimensions of the output grid. <br><br>' +
         '5. Click "Play" to generate the tilemap. <br><br>' +
         '6. Click "Image" to save the output image. <br>Click "Tilemap" to save the tilemap as JSON. <br>Click "Tile Rules" to save the tile rules as JSON.');
-    helpText.parent(card);
+    helpText.parent(gettingStartedCard);
 }
 
 function mousePressed() {
@@ -1072,7 +1046,6 @@ function playPopSfx() {
         popSfx2.play();
     } else {
         popSfx3.play();
-
     }
 }
 
@@ -1108,5 +1081,84 @@ function downloadLogs() {
 }
 
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
+    const userWidth = windowWidth - 20;
+    const userHeight = windowHeight - 20;
+    resizeCanvas(userWidth, userHeight);
+
+    updateUIPositions();
+}
+
+function updateUIPositions() {
+    // --- INPUT IMAGE PARAMETERS ---
+    fileInput.position(windowWidth * 0.05, 100 + windowHeight * 0.5);
+    fileInput.size(100 + windowWidth * 0.1, 25);
+
+    tileSizeInput.position(windowWidth * 0.1, 100 + windowHeight * 0.5 + 50);
+    tileSizeInput.size(100, 40);
+    pxText.position(windowWidth * 0.1 + 105, 100 + windowHeight * 0.5 + 50);
+
+    tileSizeSlider.position(windowWidth * 0.1 - 16, 100 + windowHeight * 0.5 + 100);
+
+
+    // --- OUTPUT IMAGE PARAMETERS ---
+    analyzeButton.position(windowWidth * 0.31 + 26, windowHeight * 0.1);
+    analyzeButton.size(100, 50);
+
+    const heightOffset = 80;
+    playButton.position(windowWidth * 0.31, windowHeight * 0.1 + heightOffset);
+    pauseButton.position(windowWidth * 0.31 + 50, windowHeight * 0.1 + heightOffset);
+    resetButton.position(windowWidth * 0.31 + 100, windowHeight * 0.1 + heightOffset);
+
+    dimInput.position(windowWidth * 0.31 + 20, windowHeight * 0.1 + heightOffset + 70);
+    dimInput.size(115, 40);
+
+    dimSlider.position(windowWidth * 0.31 + 10, windowHeight * 0.1 + heightOffset + 120);
+
+
+    // --- FRAME RATE SLIDER ---
+    // frameRateSlider
+    const textOffset = 8;
+    frameRateSlider.position(windowWidth * 0.31 + 10, windowHeight * 0.5);
+    frameRateText.position(windowWidth * 0.31 + textOffset + 10, windowHeight * 0.5 + textOffset);
+
+    // --- DOWNLOAD BUTTONS ---
+
+
+    // arranged in a row just below output image
+
+    const spacing = 40 + windowWidth * 0.05;
+    // saveImageButton
+    saveImageButton.position(windowWidth * 0.73, windowHeight * 0.65);
+    saveImageButton.size(20 + windowWidth * 0.05, 60);
+
+    // saveTilemapButton
+    saveTilemapButton.position(windowWidth * 0.73 + spacing, windowHeight * 0.65);
+    saveTilemapButton.size(20 + windowWidth * 0.05, 60);
+
+    // saveRulesButton
+    saveRulesButton.position(windowWidth * 0.73 + 2 * spacing, windowHeight * 0.65);
+    saveRulesButton.size(20 + windowWidth * 0.05, 60);
+
+
+    // --- BEHAVIOR BUTTONS ---
+
+    behaviorFloorButton.position(windowWidth * 0.51 + 26, windowHeight * 0.7 + 100);
+    behaviorFloorButton.size(10 + windowWidth * 0.04, 42);
+    behaviorEmptyButton.position(windowWidth * 0.51 + 106, windowHeight * 0.7 + 100);
+    behaviorEmptyButton.size(10 + windowWidth * 0.04, 42);
+    behaviorResetButton.position(windowWidth * 0.52 + 180, windowHeight * 0.7 + 100);
+    behaviorResetButton.size(10 + windowWidth * 0.04, 42);
+
+
+    // --- NAME INPUT ---
+
+    // nameInput
+    nameInput.position(windowWidth * 0.52 + 180, windowHeight * 0.7 + 30);
+    nameInput.size(80, 40);
+
+
+    // --- HOW TO USE SECTION ---
+
+    gettingStartedCard.position(windowWidth * 0.48, windowHeight * 0.05);
+    gettingStartedCard.size(windowWidth * 0.2, windowHeight * 0.6);
 }

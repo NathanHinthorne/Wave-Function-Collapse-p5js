@@ -79,25 +79,40 @@ function setup() {
 
 
 
-
 function draw() {
   noSmooth();
 
   background(255);
   // clear(); // use this instead if you want to make a cool css background in style.css
 
-  displayInputGrid(10, 10, INPUT_IMAGE_DISPLAY_SIZE, INPUT_IMAGE_DISPLAY_SIZE);
+  // Calculate relative positions and sizes
+  const inputImageDisplaySize = windowWidth * 0.28;
+  const outputImageDisplayX = windowWidth * 0.70;
+  const outputImageDisplaySize = windowWidth * 0.28;
+
+  const tileVariantDisplayX = windowWidth * 0.27;
+  const tileVariantDisplayY = windowHeight * 0.7;
+  const tileVariantDisplayWidth = windowWidth * 0.23;
+  const tileVariantDisplayHeight = windowHeight * 0.25;
+
+  const behaviorDisplayX = windowWidth * 0.51;
+  const behaviorDisplayY = windowHeight * 0.7;
+  const behaviorDisplayWidth = windowWidth * 0.2;
+  const behaviorDisplayHeight = windowHeight * 0.25;
+
+
+  displayInputGrid(10, 10, inputImageDisplaySize, inputImageDisplaySize);
 
   if (imageIsAnalyzed) {
-    displayTileVariants(469, 500, 570, 180);
+    displayTileVariants(tileVariantDisplayX, tileVariantDisplayY, tileVariantDisplayWidth, tileVariantDisplayHeight);
 
     // if (optionsIsPressed) {
-    displayBehaviors(1048, 550, 450, 130);
+    displayBehaviors(behaviorDisplayX, behaviorDisplayY, behaviorDisplayWidth, behaviorDisplayHeight);
     // }
   }
 
   if (outputIsInitialized) {
-    displayOutputGrid(1048, 10, OUTPUT_IMAGE_DISPLAY_SIZE, OUTPUT_IMAGE_DISPLAY_SIZE);
+    displayOutputGrid(outputImageDisplayX, 10, outputImageDisplaySize, outputImageDisplaySize);
   }
 
   if (outputIsGenerating) {

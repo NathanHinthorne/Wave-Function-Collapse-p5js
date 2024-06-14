@@ -156,8 +156,8 @@ label {
 
 .github-link {
     position: fixed;
-    top: 0;
-    right: 0;
+    top: 92%;
+    left: 1%;
     padding: 10px;
     background-color: #333;
     color: white;
