@@ -904,7 +904,8 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
     textStyle(BOLD);
     text("Tile Behaviors", cardX + 10, cardY + 20);
 
-    const padding = 20;
+    const padding = 10;
+    const spacing = windowWidth / 20;
     const backgroundWidth = (cardWidth - 2 * padding) / 4;
 
     // backgrounds for button titles
@@ -912,7 +913,7 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
     rect(cardX + padding, cardY + 40, backgroundWidth, 30);
 
     fill(215, 130, 215, 128); // translucent pink
-    rect(cardX + 80 + padding, cardY + 40, backgroundWidth, 30);
+    rect(cardX + spacing + padding, cardY + 40, backgroundWidth, 30);
 
     // button titles
     push();
@@ -922,7 +923,7 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
     textSize(relativeTextSize);
     textAlign(CENTER, CENTER); // center the text
     text("Floor", cardX + textPadding, cardY + 40 + 30 / 2);
-    text("Empty", cardX + 80 + textPadding, cardY + 40 + 30 / 2);
+    text("Empty", cardX + spacing + textPadding, cardY + 40 + 30 / 2);
     pop();
 }
 
@@ -1126,35 +1127,33 @@ function updateUIPositions() {
 
     // arranged in a row just below output image
 
-    const spacing = 40 + windowWidth * 0.05;
+    const saveSpacing = 40 + windowWidth * 0.05;
     // saveImageButton
     saveImageButton.position(windowWidth * 0.73, windowHeight * 0.65);
     saveImageButton.size(20 + windowWidth * 0.05, 60);
 
     // saveTilemapButton
-    saveTilemapButton.position(windowWidth * 0.73 + spacing, windowHeight * 0.65);
+    saveTilemapButton.position(windowWidth * 0.73 + saveSpacing, windowHeight * 0.65);
     saveTilemapButton.size(20 + windowWidth * 0.05, 60);
 
     // saveRulesButton
-    saveRulesButton.position(windowWidth * 0.73 + 2 * spacing, windowHeight * 0.65);
+    saveRulesButton.position(windowWidth * 0.73 + 2 * saveSpacing, windowHeight * 0.65);
     saveRulesButton.size(20 + windowWidth * 0.05, 60);
 
 
     // --- BEHAVIOR BUTTONS ---
 
-    behaviorFloorButton.position(windowWidth * 0.51 + 26, windowHeight * 0.7 + 100);
+    const behaviorPadding = 15;
+    const behaviorSpacing = windowWidth / 20;
+    behaviorFloorButton.position(windowWidth * 0.51 + behaviorPadding, windowHeight * 0.7 + 80);
     behaviorFloorButton.size(10 + windowWidth * 0.04, 42);
-    behaviorEmptyButton.position(windowWidth * 0.51 + 106, windowHeight * 0.7 + 100);
+    behaviorEmptyButton.position(windowWidth * 0.51 + behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 80);
     behaviorEmptyButton.size(10 + windowWidth * 0.04, 42);
-    behaviorResetButton.position(windowWidth * 0.52 + 180, windowHeight * 0.7 + 100);
+    behaviorResetButton.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 80);
     behaviorResetButton.size(10 + windowWidth * 0.04, 42);
 
-
-    // --- NAME INPUT ---
-
-    // nameInput
-    nameInput.position(windowWidth * 0.52 + 180, windowHeight * 0.7 + 30);
-    nameInput.size(80, 40);
+    nameInput.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 10);
+    nameInput.size(10 + windowWidth * 0.05, 40);
 
 
     // --- HOW TO USE SECTION ---
