@@ -902,7 +902,7 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
     const titleSize = minSize / 13;
     textSize(titleSize);
     textStyle(BOLD);
-    text("Tile Behaviors (apply to selected tiles)", cardX + 10, cardY + 20);
+    text("Tile Behaviors \n(apply to selected tiles)", cardX + 10, cardY + 20);
 
     const padding = 10;
     const spacing = windowWidth / 20;
@@ -910,10 +910,10 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
 
     // backgrounds for button titles
     fill(50, 50, 255, 128); // translucent blue
-    rect(cardX + padding, cardY + 40, backgroundWidth, 30);
+    rect(cardX + padding, cardY + 50, backgroundWidth, 30);
 
     fill(215, 130, 215, 128); // translucent pink
-    rect(cardX + spacing + padding, cardY + 40, backgroundWidth, 30);
+    rect(cardX + spacing + padding, cardY + 50, backgroundWidth, 30);
 
     // button titles
     push();
@@ -922,8 +922,8 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
     const textPadding = padding + backgroundWidth / 2;
     textSize(relativeTextSize);
     textAlign(CENTER, CENTER); // center the text
-    text("Floor", cardX + textPadding, cardY + 40 + 30 / 2);
-    text("Empty", cardX + spacing + textPadding, cardY + 40 + 30 / 2);
+    text("Floor", cardX + textPadding, cardY + 50 + 30 / 2);
+    text("Empty", cardX + spacing + textPadding, cardY + 50 + 30 / 2);
     pop();
 }
 
@@ -1145,14 +1145,14 @@ function updateUIPositions() {
 
     const behaviorPadding = 15;
     const behaviorSpacing = windowWidth / 20;
-    behaviorFloorButton.position(windowWidth * 0.51 + behaviorPadding, windowHeight * 0.7 + 80);
+    behaviorFloorButton.position(windowWidth * 0.51 + behaviorPadding, windowHeight * 0.7 + 90);
     behaviorFloorButton.size(10 + windowWidth * 0.04, 42);
-    behaviorEmptyButton.position(windowWidth * 0.51 + behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 80);
+    behaviorEmptyButton.position(windowWidth * 0.51 + behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 90);
     behaviorEmptyButton.size(10 + windowWidth * 0.04, 42);
-    behaviorResetButton.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 80);
+    behaviorResetButton.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 100);
     behaviorResetButton.size(10 + windowWidth * 0.04, 42);
 
-    nameInput.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 30);
+    nameInput.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 45);
     nameInput.size(10 + windowWidth * 0.05, 40);
 
 
