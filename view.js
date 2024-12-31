@@ -658,7 +658,7 @@ function displayTileVariants(cardX, cardY, cardWidth, cardHeight) {
     const titleSize = minSize / 13;
     textSize(titleSize);
     textStyle(BOLD);
-    text("Tile Variants", cardX + 10, cardY + 20);
+    text("Tile Variants (click to select)", cardX + 10, cardY + 20);
 
     // show the image associated with each tile variant, along with its index on the canvas
     const tileDisplaySize = minSize / 6;
@@ -902,7 +902,7 @@ function displayBehaviors(cardX, cardY, cardWidth, cardHeight) {
     const titleSize = minSize / 13;
     textSize(titleSize);
     textStyle(BOLD);
-    text("Tile Behaviors", cardX + 10, cardY + 20);
+    text("Tile Behaviors (apply to selected tiles)", cardX + 10, cardY + 20);
 
     const padding = 10;
     const spacing = windowWidth / 20;
@@ -1152,7 +1152,7 @@ function updateUIPositions() {
     behaviorResetButton.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 80);
     behaviorResetButton.size(10 + windowWidth * 0.04, 42);
 
-    nameInput.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 10);
+    nameInput.position(windowWidth * 0.51 + 2.5 * behaviorSpacing + behaviorPadding, windowHeight * 0.7 + 30);
     nameInput.size(10 + windowWidth * 0.05, 40);
 
 
