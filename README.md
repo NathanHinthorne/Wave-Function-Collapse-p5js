@@ -1,5 +1,5 @@
 # Wave Function Collapse
-![screenshot](https://github.com/user-attachments/assets/4c0c4bc6-ec81-46ed-956c-850451317769)
+![screenshot](https://github.com/user-attachments/assets/03754939-ee21-460e-b70f-866ff905ab3b)
 
 ## Description
 
