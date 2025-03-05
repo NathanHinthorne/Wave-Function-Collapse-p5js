@@ -1,6 +1,5 @@
 # Wave Function Collapse
-![screenshot](https://github.com/user-attachments/assets/03754939-ee21-460e-b70f-866ff905ab3b)
-
+<img src="https://github.com/user-attachments/assets/03754939-ee21-460e-b70f-866ff905ab3b" alt="demo image" width="300">
 ## Description
 
 This is a JavaScript implementation of the Wave Function Collapse (WFC) algorithm. The algorithm is used to generate terrain based on patterns identified from a single input image.
